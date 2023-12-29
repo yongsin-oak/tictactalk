@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 
 const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -17,58 +19,56 @@ const Register = () => {
 
         <form>
           <div className="mb-4">
+            <label htmlFor="username" className="text-gray-500">Username</label>
             <input
               type="text"
               id="username"
               name="username"
               className="w-full border p-2 rounded"
-              placeholder="Username"
             />
           </div>
 
           <div className="mb-4">
+            <label htmlFor="email" className="text-gray-500">Email</label>
             <input
               type="email"
               id="email"
               name="email"
               className="w-full border p-2 rounded"
-              placeholder="Email"
             />
           </div>
 
           <div className="mb-4 relative">
+            <label htmlFor="password" className="text-gray-500">Password</label>
             <input
               type={passwordVisible ? 'text' : 'password'}
               id="password"
               name="password"
               className="w-full border p-2 rounded pr-10"
-              placeholder="Password"
             />
             {/* Eye icon to toggle password visibility */}
             <div
-              className="absolute inset-y-0 right-0 pr-2 flex items-center cursor-pointer"
+              className="absolute top-9 right-0 pr-2 flex items-center cursor-pointer"
               onClick={() => togglePasswordVisibility('password', setPasswordVisible)}
             >
-              <i className={`far ${passwordVisible ? 'fa-eye' : 'fa-eye-slash'} text-gray-500`}></i>
+              <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} id="eyeIcon" style={{color: "#999999",}}/>
             </div>
           </div>
 
           <div className="mb-4 relative">
+            <label htmlFor="confirmPassword" className="text-gray-500">Confirm Password</label>
             <input
               type={confirmPasswordVisible ? 'text' : 'password'}
               id="confirmPassword"
               name="confirmPassword"
               className="w-full border p-2 rounded pr-10"
-              placeholder="Confirm Password"
             />
             {/* Eye icon to toggle password visibility */}
             <div
-              className="absolute inset-y-0 right-0 pr-2 flex items-center cursor-pointer"
+              className="absolute top-9 right-0 pr-2 flex items-center cursor-pointer"
               onClick={() => togglePasswordVisibility('confirmPassword', setConfirmPasswordVisible)}
             >
-              <i
-                className={`far ${confirmPasswordVisible ? 'fa-eye' : 'fa-eye-slash'} text-gray-500`}
-              ></i>
+              <FontAwesomeIcon icon={confirmPasswordVisible ? faEye : faEyeSlash} id="eyeIcon" style={{color: "#999999",}}/>
             </div>
           </div>
 

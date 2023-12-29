@@ -1,21 +1,12 @@
-// src/components/Login.js
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 
 const Login = () => {
-  const togglePasswordVisibility = (inputId, iconId) => {
-    const passwordInput = document.getElementById(inputId);
-    const eyeIcon = document.getElementById(iconId);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
-    if (passwordInput.type === 'password') {
-      passwordInput.type = 'text';
-      eyeIcon.classList.remove('fa-eye-slash');
-      eyeIcon.classList.add('fa-eye');
-    } else {
-      passwordInput.type = 'password';
-      eyeIcon.classList.remove('fa-eye');
-      eyeIcon.classList.add('fa-eye-slash');
-    }
+  const togglePasswordVisibility = () => {
+    setPasswordVisible((prev) => !prev);
   };
 
   return (
@@ -29,7 +20,7 @@ const Login = () => {
 
           <div className="mb-4 relative">
             <input
-              type="password"
+              type={passwordVisible ? 'text' : 'password'}
               id="password"
               name="password"
               className="w-full border p-2 rounded pr-10"
@@ -37,9 +28,9 @@ const Login = () => {
             />
             <div
               className="absolute inset-y-0 right-0 pr-2 flex items-center cursor-pointer"
-              onClick={() => togglePasswordVisibility('password', 'eyeIcon')}
+              onClick={togglePasswordVisibility}
             >
-              <i id="eyeIcon" className="far fa-eye-slash text-gray-500"></i>
+              <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} id="eyeIcon" style={{color: "#999999",}}/>
             </div>
           </div>
 
