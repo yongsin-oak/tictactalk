@@ -1,5 +1,6 @@
 // src/components/Login.js
 import React, { useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const Login = () => {
   const togglePasswordVisibility = (inputId, iconId) => {
@@ -21,7 +22,6 @@ const Login = () => {
     <div className="bg-gray-100 h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded shadow-md w-96 mx-auto my-auto">
         <h1 className="text-2xl font-bold mb-6">Login</h1>
-
         <form>
           <div className="mb-4">
             <input type="text" id="username" name="username" className="w-full border p-2 rounded" placeholder="Username" />
