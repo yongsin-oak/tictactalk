@@ -1,12 +1,14 @@
 // src/App.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Login from './components/Login';
+import Login from './components/Login.jsx';
 // import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Register from './components/Register';
+import Register from './components/Register.jsx';
 import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
+import Home from './components/Home.jsx';
+import protectedRoute from './auth/protectedRoute.jsx';
 
 // import { GoogleOAuthProvider } from '@react-oauth/google';
 // import { GoogleLogin } from '@react-oauth/google';
@@ -24,12 +26,18 @@ const router = createBrowserRouter([
   {
     path: "/Register",
     element: <Register />
+  },
+  {
+    path: "/home",
+    element: <protectedRoute><Home /></protectedRoute>
   }
 
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <UserAuthContextProvider>
+      <RouterProvider router={router} />
+    </UserAuthContextProvider>
   </React.StrictMode>,
 )
 
