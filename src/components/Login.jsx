@@ -32,7 +32,6 @@ const Login = () => {
     setError("");
     try{
       await logIn(email, password);
-      navigate("/");
     } catch(err){
       setError(err.message);
       console.log(err);
@@ -67,23 +66,16 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="mb-4 flex items-center">
-            <input type="checkbox" id="rememberMe" name="rememberMe" className="mr-2" />
-            <label htmlFor="rememberMe" className="text-sm text-gray-600">
-              Remember me
-            </label>
-          </div>
-
-          <a href="#" className="text-sm text-blue-500 block mb-4">
+          <Link to="/Register" className="text-sm text-blue-500 block mb-4">
             Forgot Password?
-          </a>
+          </Link>
 
           <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 mb-2">
             Log In
           </button>
 
           <p className="mt-4">
-            Don't have an account? <a href="/Register" className="text-blue-500">Register here</a>
+            Don't have an account? <Link to="/Register" className="text-blue-500">Register here</Link>
           </p>
         </form>
       </div>
