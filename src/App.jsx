@@ -26,8 +26,13 @@ function Home() {
         {user ? (
           <div>
             <p>Welcome, {user.email}!</p>
-            <Box mt={2}>
-              <Button onClick={handleLogout} variant="contained" color="error">
+            <Box mt={2} className="gap-2 grid w-4/12 m-auto">
+              <Link to="/tictactoe" className='grid'>
+                <Button variant="contained" color="success">
+                  Play test
+                </Button>
+              </Link>
+              <Button onClick={handleLogout} variant="outlined" color="error">
                 Logout
               </Button>
             </Box>

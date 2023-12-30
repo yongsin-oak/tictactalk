@@ -1,84 +1,89 @@
 import React, { useState } from 'react';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
+import { Button, Grid, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+
+const calculateWinner = (squares) => {
+  // Function to calculate the winner (similar to your implementation)
+  // ...
+
+  return null; // Return the winner ('X', 'O', or null)
+};
+
+const INITIAL_STATE = Array(9).fill(null);
 
 const TicTacToe = () => {
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [isXNext, setIsXNext] = useState(true);
-  const winner = calculateWinner(board);
+  const [board, setBoard] = useState(INITIAL_STATE);
+  const [xIsNext, setXIsNext] = useState(true);
+  const [selectedSize, setSelectedSize] = useState(3);
 
   const handleClick = (index) => {
-    if (board[index] || winner) {
+    if (board[index] || calculateWinner(board)) {
       return;
     }
 
     const newBoard = board.slice();
-    newBoard[index] = isXNext ? 'X' : 'O';
+    newBoard[index] = { player: xIsNext ? 'X' : 'O', size: selectedSize };
     setBoard(newBoard);
-    setIsXNext(!isXNext);
+    setXIsNext(!xIsNext);
   };
 
-  const renderSquare = (index) => (
+  const handleSizeChange = (event) => {
+    setSelectedSize(event.target.value);
+  };
+
+  const renderSquare = (index, size) => (
     <Button
-      style={{ width: '80px', height: '80px', fontSize: '1.5rem' }}
       variant="outlined"
+      size="large"
+      style={{ width: `${size * 30}px`, height: `${size * 30}px`, fontSize: `${size * 1.5}rem` }}
       onClick={() => handleClick(index)}
     >
-      {board[index]}
+      {board[index] && board[index].player}
     </Button>
   );
 
-  const getStatus = () => {
-    if (winner) {
-      return `Winner: ${winner}`;
-    } else if (board.every((square) => square !== null)) {
-      return 'It\'s a draw!';
-    } else {
-      return `Next Player: ${isXNext ? 'X' : 'O'}`;
-    }
-  };
+  const winner = calculateWinner(board);
+  const status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`;
 
   return (
-    <div>
+    <div style={{ textAlign: 'center', marginTop: '20px' }}>
       <Typography variant="h4" gutterBottom>
         Tic Tac Toe
       </Typography>
-      <Typography variant="h6" gutterBottom>
-        {getStatus()}
-      </Typography>
-      <Grid container spacing={1}>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-          <Grid item xs={4} key={index}>
-            {renderSquare(index)}
-          </Grid>
-        ))}
+
+      <Grid container spacing={2} justifyContent="center">
+        <Grid item>
+          <FormControl>
+            <InputLabel id="size-label">Size</InputLabel>
+            <Select
+              labelId="size-label"
+              id="size-select"
+              value={selectedSize}
+              onChange={handleSizeChange}
+            >
+              <MenuItem value={3}>3x3</MenuItem>
+              <MenuItem value={4}>4x4</MenuItem>
+              <MenuItem value={5}>5x5</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
       </Grid>
+
+      <div>
+        <div>
+          <Typography variant="h6">{status}</Typography>
+        </div>
+        <div>
+          {[0, 1, 2].map((row) => (
+            <div key={row} style={{ display: 'flex' }}>
+              {[0, 1, 2].map((col) => (
+                <div key={col}>{renderSquare(row * 3 + col, selectedSize)}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
-};
-
-// Helper function to determine the winner
-const calculateWinner = (squares) => {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-
-  return null;
 };
 
 export default TicTacToe;
