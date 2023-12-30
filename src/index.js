@@ -1,14 +1,16 @@
 // src/App.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css'
 import Login from './components/Login.jsx';
 // import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Register from './components/Register.jsx';
 import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
-import Home from './components/Home.jsx';
-import protectedRoute from './auth/protectedRoute.jsx';
+import TicTacToe from './components/tictactoe.jsx';
+import ProtectedRoute from './auth/protectedRoute.jsx';
+import ProtectedRoute2 from './auth/protectedRoute2.jsx';
 
 // import { GoogleOAuthProvider } from '@react-oauth/google';
 // import { GoogleLogin } from '@react-oauth/google';
@@ -21,15 +23,15 @@ const router = createBrowserRouter([
   },
   {
     path: "/Login",
-    element: <Login />
+    element: <ProtectedRoute2><Login /></ProtectedRoute2>
   },
   {
     path: "/Register",
-    element: <Register />
+    element: <ProtectedRoute2><Register /></ProtectedRoute2>
   },
   {
-    path: "/home",
-    element: <protectedRoute><Home /></protectedRoute>
+    path: "/tictactoe",
+    element: <ProtectedRoute><TicTacToe /></ProtectedRoute>
   }
 
 ])

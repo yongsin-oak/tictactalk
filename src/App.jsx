@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { useUserAuth } from './context/UserAuthContext';
-import './dist/output.css';
 import { useNavigate } from 'react-router-dom';
+import { Box } from '@mui/system';
 
 function Home() {
   const { logOut, user } = useUserAuth();
@@ -24,26 +24,24 @@ function Home() {
         <h1 className="text-4xl font-bold mb-6">Welcome to the Home Page</h1>
 
         {user ? (
-          <div className="space-y-4 flex">
-            {/* Other content for logged-in users */}
+          <div>
             <p>Welcome, {user.email}!</p>
-            <Button onClick={handleLogout} variant="contained" color="error">
-              Logout
-            </Button>
+            <Box mt={2}>
+              <Button onClick={handleLogout} variant="contained" color="error">
+                Logout
+              </Button>
+            </Box>
           </div>
         ) : (
-          <div className="space-y-4 flex">
-            {/* Content for users who are not logged in */}
-            <Link to="/login" className="mx-2">
+          <div className="flex justify-center gap-2">
+            <Link to="/login">
               <Button variant="contained" color="primary">
                 Login
               </Button>
             </Link>
 
-            <Link to="/register" className="mx-2">
-              <Button variant="outlined">
-                Register
-              </Button>
+            <Link to="/register">
+              <Button variant="outlined">Register</Button>
             </Link>
           </div>
         )}
