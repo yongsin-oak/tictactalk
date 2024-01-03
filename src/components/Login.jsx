@@ -29,6 +29,8 @@ const Login = () => {
           setError('Invalid email address');
           break;
         case 'auth/user-not-found':
+          setError('User not found');
+          break;
         case 'auth/wrong-password':
           setError('Invalid email or password');
           break;
@@ -53,11 +55,11 @@ const Login = () => {
               id="email"
               name="email"
               className="w-full border p-2 rounded"
-              placeholder=" "
+              placeholder="Email"
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <label htmlFor="email" className="text-gray-500 label-placeholder bg-white">
+            <label htmlFor="email" className="text-gray-500 label-placeholder">
               Email
             </label>
           </div>
@@ -73,7 +75,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <label htmlFor="password" className="text-gray-500 label-placeholder bg-white">
+            <label htmlFor="password" className="text-gray-500 label-placeholder">
               Password
             </label>
             <div
