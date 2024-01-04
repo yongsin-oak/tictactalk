@@ -26,7 +26,7 @@ function Home() {
 
         {user ? (
           <div>
-            <p>Welcome, {user.email}!</p>
+            <p>Welcome, {user.displayName}!</p>
             <Box mt={2} className="gap-2 grid w-4/12 m-auto">
               <Link to="/tictactoe" className='grid'>
                 <Button variant="contained" color="success">

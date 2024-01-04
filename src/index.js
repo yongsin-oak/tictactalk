@@ -7,9 +7,14 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Register from './components/Register.jsx';
 import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
-import TicTacToe from './components/tictactoe.jsx';
+import TicTacToe from './components/Tictactoe.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import ProtectedRoute2 from './auth/protectedRoute2.jsx';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 
 const router = createBrowserRouter([
   {
@@ -25,7 +30,7 @@ const router = createBrowserRouter([
     element: <ProtectedRoute2><Register /></ProtectedRoute2>
   },
   {
-    path: "/tictactoe",
+    path: "/Tictactoe",
     element: <ProtectedRoute><TicTacToe /></ProtectedRoute>
   }
 

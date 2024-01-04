@@ -8,6 +8,7 @@ import { useUserAuth } from '../context/UserAuthContext';
 const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
+  const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,7 +22,7 @@ const Register = () => {
     e.preventDefault();
     setError("");
     try {
-      await signUp(email, password);
+      await signUp(username, email, password);
     } catch (err) {
       switch (err.code) {
         case "auth/invalid-email":
@@ -53,6 +54,14 @@ const Register = () => {
 
         {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
         <form onSubmit={handleSubmit}>
+          <div className="mb-4 relative">
+            <TextField type='text'
+              id="standard-basic"
+              label="Username"
+              variant="standard"
+              className='w-full'
+              onChange={(e) => setUserName(e.target.value)} />
+          </div>
           <div className="mb-4 relative">
             <TextField type='email'
               id="standard-basic"

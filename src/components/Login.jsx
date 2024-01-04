@@ -59,19 +59,6 @@ const Login = () => {
               variant="standard"
               className='w-full'
               onChange={(e) => setEmail(e.target.value)}/>
-            {/* 
-            <input
-              type="text"
-              id="email"
-              name="email"
-              className="w-full border p-2 rounded"
-              placeholder=""
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <label htmlFor="email" className="text-gray-500 label-placeholder">
-              Email
-            </label> */}
           </div>
 
           <div className="mb-4 relative">
@@ -81,18 +68,6 @@ const Login = () => {
               variant="standard"
               className='bg-white w-full'
               onChange={(e) => setPassword(e.target.value)} />
-            {/* <input
-              type={passwordVisible ? 'text' : 'password'}
-              id="password"
-              name="password"
-              className="w-full border p-2 rounded pr-10"
-              placeholder=" "
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <label htmlFor="password" className="text-gray-500 label-placeholder">
-              Password
-            </label> */}
             <div
               className="absolute top-5 right-0 pr-2 flex items-center cursor-pointer"
               onClick={togglePasswordVisibility}

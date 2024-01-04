@@ -3,7 +3,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut
+  signOut,
+  updateProfile
 } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
@@ -13,18 +14,19 @@ const UserAuthContext = createContext();
 export function UserAuthContextProvider({ children }) {
   const [user, setUser] = useState({});
 
-  async function signUp(email, password) {
+  async function signUp(username, email, password) {
     try {
       // Create user in Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
+      await updateProfile(userCredential.user, { displayName: username });
       // Get user UID
       const uid = userCredential.user.uid;
 
       // Add additional user data to Firestore
       await addDoc(collection(db, 'users'), {
         uid: uid,
-        email: email
+        email: email,
+        username: username
         // Add more user information as needed
       });
     } catch (error) {
