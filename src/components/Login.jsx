@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
-import { Alert } from '@mui/material';
+import { Alert, TextField } from '@mui/material';
 import { useUserAuth } from '../context/UserAuthContext';
-import './Login.css'
 
 const Login = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -44,29 +43,45 @@ const Login = () => {
 
   return (
     <div className="bg-gray-100 h-screen flex items-center justify-center">
+      <div className='text-2xl absolute top-2 left-2'>
+        <Link to="/">
+          return
+        </Link>
+      </div>
       <div className="bg-white p-8 rounded shadow-md w-96 mx-auto my-auto">
         <h1 className="text-2xl font-bold mb-6">Login</h1>
         {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4 relative">
-            
+            <TextField type='email'
+              id="standard-basic"
+              label="Email"
+              variant="standard"
+              className='w-full'
+              onChange={(e) => setEmail(e.target.value)}/>
+            {/* 
             <input
               type="text"
               id="email"
               name="email"
               className="w-full border p-2 rounded"
-              placeholder="Email"
+              placeholder=""
               onChange={(e) => setEmail(e.target.value)}
               required
             />
             <label htmlFor="email" className="text-gray-500 label-placeholder">
               Email
-            </label>
+            </label> */}
           </div>
 
           <div className="mb-4 relative">
-            
-            <input
+            <TextField type={passwordVisible ? 'text' : 'password'}
+              id="standard-basic"
+              label="Password"
+              variant="standard"
+              className='bg-white w-full'
+              onChange={(e) => setPassword(e.target.value)} />
+            {/* <input
               type={passwordVisible ? 'text' : 'password'}
               id="password"
               name="password"
@@ -77,9 +92,9 @@ const Login = () => {
             />
             <label htmlFor="password" className="text-gray-500 label-placeholder">
               Password
-            </label>
+            </label> */}
             <div
-              className="absolute inset-y-0 right-0 pr-2 flex items-center cursor-pointer"
+              className="absolute top-5 right-0 pr-2 flex items-center cursor-pointer"
               onClick={togglePasswordVisibility}
             >
               <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} id="eyeIcon" style={{ color: "#999999" }} />

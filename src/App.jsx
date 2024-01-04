@@ -5,6 +5,7 @@ import { useUserAuth } from './context/UserAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/system';
 
+
 function Home() {
   const { logOut, user } = useUserAuth();
   const navigate = useNavigate();
