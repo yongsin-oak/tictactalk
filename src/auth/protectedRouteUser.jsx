@@ -2,7 +2,7 @@ import React from 'react'
 import { useUserAuth } from '../context/UserAuthContext';
 import { Navigate } from 'react-router-dom';
 
-function ProtectedRoute2({ children }) {
+function ProtectedRouteUser({ children }) {
   const { user } = useUserAuth();
 
   if (user) {
@@ -12,4 +12,4 @@ function ProtectedRoute2({ children }) {
   return children;
 }
 
-export default ProtectedRoute2
+export default ProtectedRouteUser

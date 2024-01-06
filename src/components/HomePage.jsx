@@ -1,8 +1,8 @@
-import React from 'react'
-import {Link } from 'react-router-dom'
-import { Button } from '@mui/material'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import Button from '@mui/material/Button';
 
-function HomePageLoging() {
+function HomePage() {
     return (
         <div className="flex justify-center gap-2">
             <Link to="/login">
@@ -15,7 +15,7 @@ function HomePageLoging() {
                 <Button variant="outlined">Register</Button>
             </Link>
         </div>
-    )
+    );
 }
 
-export default HomePageLoging
+export default HomePage;

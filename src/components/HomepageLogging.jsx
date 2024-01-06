@@ -1,9 +1,10 @@
-import React from 'react'
-import { Button, Link, Box } from '@mui/material'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import Button from '@mui/material/Button';
 import { useUserAuth } from '../context/UserAuthContext';
 import { useNavigate } from 'react-router-dom';
-
-function HomePage() {
+import { Box } from '@mui/system';
+function HomepageLogging() {
     const { logOut, user } = useUserAuth();
     const navigate = useNavigate();
 
@@ -17,7 +18,7 @@ function HomePage() {
     };
     return (
         <div>
-            <p>Welcome, {user}!</p>
+            <p>Welcome, {user.displayName}!</p>
             <Box mt={2} className="gap-2 grid w-4/12 m-auto">
                 <Link to="/tictactoe" className='grid'>
                     <Button variant="contained" color="success">
@@ -29,7 +30,7 @@ function HomePage() {
                 </Button>
             </Box>
         </div>
-    )
+    );
 }
 
-export default HomePage
+export default HomepageLogging
