@@ -9,11 +9,12 @@ import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
 import TicTacToe from './components/Tictactoe.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
-import ProtectedRoute2 from './auth/protectedRoute2.jsx';
+import ProtectedRouteUser from './auth/protectedRouteUser.jsx';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import UserProfile from './components/UserProfile.jsx';
 
 
 const router = createBrowserRouter([
@@ -23,17 +24,20 @@ const router = createBrowserRouter([
   },
   {
     path: "/Login",
-    element: <ProtectedRoute2><Login /></ProtectedRoute2>
+    element: <ProtectedRouteUser><Login /></ProtectedRouteUser>
   },
   {
     path: "/Register",
-    element: <ProtectedRoute2><Register /></ProtectedRoute2>
+    element: <ProtectedRouteUser><Register /></ProtectedRouteUser>
   },
   {
     path: "/Tictactoe",
     element: <ProtectedRoute><TicTacToe /></ProtectedRoute>
+  },
+  {
+    path: "/UserProfile",
+    element: <ProtectedRoute><UserProfile /></ProtectedRoute>
   }
-
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
