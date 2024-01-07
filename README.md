@@ -8,7 +8,7 @@ In the project directory, you can run:
 
 ### `npm install`
 
-use npm install first
+run npm install first
 
 ### `npm start`
 
