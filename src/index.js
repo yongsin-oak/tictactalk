@@ -7,7 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Register from './components/Register.jsx';
 import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
-import TicTacToe from './components/Tictactoe.jsx';
+import TicTacToe from './components/tictactoe.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import ProtectedRouteUser from './auth/protectedRouteUser.jsx';
 import '@fontsource/roboto/300.css';

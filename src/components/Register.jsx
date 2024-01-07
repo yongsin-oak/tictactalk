@@ -4,6 +4,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
 import { Alert, TextField } from '@mui/material';
 import { useUserAuth } from '../context/UserAuthContext';
+import styles from './Register.module.css'
 
 const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -50,7 +51,7 @@ const Register = () => {
         </Link>
       </div>
       <div className="bg-white p-8 rounded shadow-md w-96 mx-auto my-auto">
-        <h1 className="text-2xl font-bold mb-6">Register</h1>
+        <h1 className="text-2xl font-bold mb-6" >Register</h1>
 
         {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
         <form onSubmit={handleSubmit}>
