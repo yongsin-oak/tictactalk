@@ -4,8 +4,8 @@ import Button from '@mui/material/Button';
 import { useUserAuth } from './context/UserAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/system';
-import HomePage from './components/Homepage';
-import HomepageLogging from './components/HomepageLogging';
+import HomePage from './components/HomePage';
+import HomepageLogging from './components/HomePageLogging';
 
 function Home() {
   const { logOut, user } = useUserAuth();
