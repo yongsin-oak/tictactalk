@@ -59,6 +59,7 @@ const UserProfile = () => {
           margin="normal"
           value={formValues.displayName}
           onChange={handleChange}
+          required
         />
         <Button type="submit" variant="contained" color="primary">
           Save Changes

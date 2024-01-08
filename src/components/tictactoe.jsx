@@ -1,95 +1,154 @@
-import React, { useState } from 'react';
-import { Button, Container, Grid, Typography } from '@mui/material';
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import Button from "./Button";
+import Square from "./Square";
+import './tictactoe.css';
 
-const TicTacToe = () => {
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [xIsNext, setXIsNext] = useState(true);
-  const winner = calculateWinner(board);
+function App() {
+    const [squares, setSquares] = useState(Array(9).fill(""));
+    const [turn, setTurn] = useState("x");
+    const [winner, setWinner] = useState(null);
 
-  const handleClick = (index) => {
-    if (winner || board[index]) return;
+    const checkEndTheGame = () => {
+        for (let square of squares) {
+            if (!square) return false;
+        }
+        return true;
+    };
 
-    const newBoard = board.slice();
-    newBoard[index] = xIsNext ? 'X': 'O';
+    const checkWinner = () => {
+        const combos = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
 
-    setBoard(newBoard);
-    setXIsNext(!xIsNext);
-  };
+        for (let combo of combos) {
+            const [a, b, c] = combo;
+            if (
+                squares[a] &&
+                squares[a] === squares[b] &&
+                squares[a] === squares[c]
+            ) {
+                return squares[a];
+            }
+        }
+        return null;
+    };
 
-  const renderSquare = (index) => (
-    <Button
-      variant="outlined"
-      className=' w-36 h-36'
-      onClick={() => handleClick(index)}
-    >
-      {board[index]}
-    </Button>
-  );
+    const updateSquares = (ind) => {
+        if (squares[ind] || winner) {
+            return;
+        }
+        const s = squares;
+        s[ind] = turn;
+        setSquares(s);
+        setTurn(turn === "x" ? "o" : "x");
+        const W = checkWinner();
+        if (W) {
+            setWinner(W);
+        } else if (checkEndTheGame()) {
+            setWinner("x | o");
+        }
+    };
 
-  const getStatus = () => {
-    if (winner) {
-      return `Winner: ${winner}`;
-    } else if (board.every((square) => square !== null)) {
-      return 'Draw!';
-    } else {
-      return `Next player: ${xIsNext ? 'X' : 'O'}`;
-    }
-  };
+    const resetGame = () => {
+        setSquares(Array(9).fill(""));
+        setTurn("x");
+        setWinner(null);
+    };
 
-  const resetGame = () => {
-    setBoard(Array(9).fill(null));
-    setXIsNext(true);
-  };
+    return (
+        <div className="tictactoe">
+            <h1> TIC-TAC-TOE </h1>
+            <Button resetGame={resetGame} />
+            <div className="game">
+                {Array.from("012345678").map((ind) => (
+                    <Square
+                        key={ind}
+                        ind={ind}
+                        updateSquares={updateSquares}
+                        clsName={squares[ind]}
+                    />
+                ))}
+            </div>
+            <div className={`turn ${turn === "x" ? "left" : "right"}`}>
+                <Square clsName="x" />
+                <Square clsName="o" />
+            </div>
+            <AnimatePresence>
+                {winner && (
+                    <motion.div
+                        key={"parent-box"}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="winner"
+                    >
+                        <motion.div
+                            key={"child-box"}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="text"
+                        >
+                            <motion.h2
+                                initial={{ scale: 0, y: 100 }}
+                                animate={{
+                                    scale: 1,
+                                    y: 0,
+                                    transition: {
+                                        y: { delay: 0.7 },
+                                        duration: 0.7,
+                                    },
+                                }}
+                            >
+                                {winner === "x | o"
+                                    ? "No Winner :/"
+                                    : "Win !! :)"}
+                            </motion.h2>
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{
+                                    scale: 1,
+                                    transition: {
+                                        delay: 1.3,
+                                        duration: 0.2,
+                                    },
+                                }}
+                                className="win"
+                            >
+                                {winner === "x | o" ? (
+                                    <>
+                                        <Square clsName="x" />
+                                        <Square clsName="o" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <Square clsName={winner} />
+                                    </>
+                                )}
+                            </motion.div>
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{
+                                    scale: 1,
+                                    transition: { delay: 1.5, duration: 0.3 },
+                                }}
+                            >
+                                <Button resetGame={resetGame} />
+                            </motion.div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
 
-  return (
-    <Container>
-      <Typography variant="h2" gutterBottom className="text-center">
-        Tic Tac Toe
-      </Typography>
-      <Typography variant="h5" gutterBottom className="text-center">
-        {getStatus()}
-      </Typography>
-      <Grid container spacing={1}>
-        {[0, 1, 2].map((row) => (
-          <Grid container item key={row} justifyContent="center" spacing={1}>
-            {[0, 1, 2].map((col) => (
-              <Grid item key={col}>
-                {renderSquare(row * 3 + col)}
-              </Grid>
-            ))}
-          </Grid>
-        ))}
-      </Grid>
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <Button variant="contained" color="primary" onClick={resetGame}>
-          Reset Game
-        </Button>
-      </div>
-    </Container>
-  );
-};
-
-// Helper function to calculate the winner
-const calculateWinner = (squares) => {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-
-  return null;
-};
-
-export default TicTacToe;
+export default App;

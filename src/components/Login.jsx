@@ -42,7 +42,7 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gray-100 h-screen flex items-center justify-center">
+    <div className="h-screen flex items-center justify-center">
       <div className='text-2xl absolute top-2 left-2'>
         <Link to="/">
           return
