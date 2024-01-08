@@ -54,7 +54,6 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <div className="mb-4 relative">
             <TextField type='email'
-              id="standard-basic"
               label="Email"
               variant="standard"
               className='w-full'
@@ -63,7 +62,6 @@ const Login = () => {
 
           <div className="mb-4 relative">
             <TextField type={passwordVisible ? 'text' : 'password'}
-              id="standard-basic"
               label="Password"
               variant="standard"
               className='bg-white w-full'
