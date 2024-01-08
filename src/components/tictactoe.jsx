@@ -55,7 +55,9 @@ function App() {
         } else if (checkEndTheGame()) {
             setWinner("x | o");
         }
+        console.log(ind)
     };
+    
 
     const resetGame = () => {
         setSquares(Array(9).fill(""));

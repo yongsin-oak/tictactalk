@@ -9,17 +9,7 @@ import HomepageLogging from './components/HomepageLogging';
 import './App.css';
 
 function Home() {
-  const { logOut, user } = useUserAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await logOut();
-      navigate('/');
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
+  const { user } = useUserAuth();
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="text-center">

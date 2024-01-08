@@ -4,6 +4,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
 import { Alert, TextField } from '@mui/material';
 import { useUserAuth } from '../context/UserAuthContext';
+import { motion } from 'framer-motion'; 
 
 const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -43,13 +44,12 @@ const Register = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center">
+    <div>
       <div className='text-2xl absolute top-2 left-2'>
         <Link to="/">
           return
         </Link>
       </div>
-      <div className="bg-white p-8 rounded shadow-md w-96 mx-auto my-auto">
         <h1 className="text-2xl font-bold mb-6">Register</h1>
 
         {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
@@ -93,12 +93,7 @@ const Register = () => {
           >
             Register
           </button>
-
-          <p className="mt-4">
-            Already have an account? <Link to="/Login" className="text-blue-500">Log in here</Link>
-          </p>
         </form>
-      </div>
     </div>
   );
 };

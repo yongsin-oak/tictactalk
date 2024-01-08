@@ -15,6 +15,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import UserProfile from './components/UserProfile.jsx';
+import AuthPage from './components/Auth.jsx';
 
 
 const router = createBrowserRouter([
@@ -23,13 +24,17 @@ const router = createBrowserRouter([
     element: <App />
   },
   {
-    path: "/Login",
-    element: <ProtectedRouteUser><Login /></ProtectedRouteUser>
+    path: "/Auth",
+    element: <ProtectedRouteUser><AuthPage /></ProtectedRouteUser>
   },
-  {
-    path: "/Register",
-    element: <ProtectedRouteUser><Register /></ProtectedRouteUser>
-  },
+  // {
+  //   path: "/Login",
+  //   element: <ProtectedRouteUser><Login /></ProtectedRouteUser>
+  // },
+  // {
+  //   path: "/Register",
+  //   element: <ProtectedRouteUser><Register /></ProtectedRouteUser>
+  // },
   {
     path: "/Tictactoe",
     element: <ProtectedRoute><TicTacToe /></ProtectedRoute>

@@ -5,13 +5,13 @@ import Button from '@mui/material/Button';
 function HomePage() {
     return (
         <div className="flex justify-center gap-2">
-            <Link to="/login">
+            <Link to="/Auth">
                 <Button variant="contained" color="primary">
                     Login
                 </Button>
             </Link>
 
-            <Link to="/register">
+            <Link to="/Auth">
                 <Button variant="outlined">Register</Button>
             </Link>
         </div>
