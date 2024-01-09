@@ -1,12 +1,4 @@
-* {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
 
-body {
-    background-color: hsl(301, 0%, 23%);
-}
 
 .tictactoe {
     width: fit-content;

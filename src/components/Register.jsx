@@ -45,18 +45,10 @@ const Register = () => {
 
   return (
     <div>
-      <div className='text-2xl absolute top-2 left-2'>
-        <Link to="/">
-          return
-        </Link>
-      </div>
-        <h1 className="text-2xl font-bold mb-6">Register</h1>
-
         {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4 relative">
             <TextField type='text'
-              id="standard-basic"
               label="Username"
               variant="standard"
               className='w-full'
@@ -64,7 +56,6 @@ const Register = () => {
           </div>
           <div className="mb-4 relative">
             <TextField type='email'
-              id="standard-basic"
               label="Email"
               variant="standard"
               className='w-full'
@@ -73,10 +64,9 @@ const Register = () => {
 
           <div className="mb-4 relative">
             <TextField type={passwordVisible ? 'text' : 'password'}
-              id="standard-basic"
               label="Password"
               variant="standard"
-              className='bg-white w-full'
+              className='w-full'
               onChange={(e) => setPassword(e.target.value)} />
             <div
               className="absolute top-5 right-0 pr-2 flex items-center cursor-pointer"
@@ -86,11 +76,7 @@ const Register = () => {
             </div>
           </div>
 
-          {/* Submit button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 mb-2"
-          >
+          <button type="submit" className="float-right w-32 p-2 rounded mb-2" style={{ backgroundColor: "#A1EEBD", color: "#0B6C2E" }}>
             Register
           </button>
         </form>

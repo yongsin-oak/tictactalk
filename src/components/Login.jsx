@@ -43,12 +43,7 @@ const Login = () => {
 
   return (
     <div>
-      <div className='text-2xl absolute top-2 left-2'>
-        <Link to="/">
-          return
-        </Link>
-      </div>
-      <h1 className="text-2xl font-bold mb-6">Login</h1>
+      {/* <h1 className="text-2xl font-bold mb-6">Login</h1> */}
       {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4 relative">
@@ -63,7 +58,7 @@ const Login = () => {
           <TextField type={passwordVisible ? 'text' : 'password'}
             label="Password"
             variant="standard"
-            className='bg-white w-full'
+            className='w-full'
             onChange={(e) => setPassword(e.target.value)} />
           <div
             className="absolute top-5 right-0 pr-2 flex items-center cursor-pointer"
@@ -76,10 +71,9 @@ const Login = () => {
         <Link to="/Register" className="text-sm text-blue-500 block mb-4">
           Forgot Password?
         </Link>
-
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 mb-2">
-          Log In
-        </button>
+          <button type="submit" className="float-right w-32 p-2 rounded mb-2" style={{ backgroundColor: "#A1EEBD", color: "#0B6C2E" }}>
+            Log In
+          </button>
       </form>
     </div>
   );

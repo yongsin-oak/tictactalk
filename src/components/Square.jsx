@@ -21,6 +21,7 @@ const Square = ({ ind, updateSquares, clsName }) => {
             )}
         </motion.div>
     );
+    
 };
 
 export default Square;

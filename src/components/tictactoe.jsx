@@ -55,7 +55,6 @@ function App() {
         } else if (checkEndTheGame()) {
             setWinner("x | o");
         }
-        console.log(ind)
     };
     
 
