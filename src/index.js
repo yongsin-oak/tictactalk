@@ -10,11 +10,9 @@ import App from './App.jsx';
 import TicTacToe from './components/tictactoe.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import ProtectedRouteUser from './auth/protectedRouteUser.jsx';
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
 import UserProfile from './components/UserProfile.jsx';
+import AuthPage from './components/Auth.jsx';
+import Hello from './components/test.jsx';
 
 
 const router = createBrowserRouter([
@@ -23,13 +21,17 @@ const router = createBrowserRouter([
     element: <App />
   },
   {
-    path: "/Login",
-    element: <ProtectedRouteUser><Login /></ProtectedRouteUser>
+    path: "/Auth",
+    element: <ProtectedRouteUser><AuthPage /></ProtectedRouteUser>
   },
-  {
-    path: "/Register",
-    element: <ProtectedRouteUser><Register /></ProtectedRouteUser>
-  },
+  // {
+  //   path: "/Login",
+  //   element: <ProtectedRouteUser><Login /></ProtectedRouteUser>
+  // },
+  // {
+  //   path: "/Register",
+  //   element: <ProtectedRouteUser><Register /></ProtectedRouteUser>
+  // },
   {
     path: "/Tictactoe",
     element: <ProtectedRoute><TicTacToe /></ProtectedRoute>
@@ -37,6 +39,10 @@ const router = createBrowserRouter([
   {
     path: "/UserProfile",
     element: <ProtectedRoute><UserProfile /></ProtectedRoute>
+  },
+  {
+    path: "/test",
+    element: <Hello />
   }
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(

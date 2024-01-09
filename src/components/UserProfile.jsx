@@ -1,27 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Container, TextField, Typography } from '@mui/material';
+import { useUserAuth } from '../context/UserAuthContext';
+import { doc, updateDoc } from 'firebase/firestore';
+import { auth, db, } from '../firebase';
+import { updateProfile } from 'firebase/auth';
 
 const UserProfile = () => {
   // Assuming you have a user object with properties like displayName and email
-  const [user, setUser] = useState({
-    displayName: 'John Doe',
-    email: 'john@example.com',
-  });
+  const { user } = useUserAuth();
 
   const [formValues, setFormValues] = useState({
     displayName: user.displayName,
-    email: user.email,
   });
+  useEffect(() => {
+    // Update form values when user changes (e.g., on login)
+    setFormValues({
+      displayName: user.displayName,
+    });
+  }, [user]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Update user profile in Firebase Authentication
+      await updateProfile(auth.currentUser,
+        {displayName: formValues.displayName,
+      });
+
+      // Update user document in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, {
+        displayName: formValues.displayName,
+        // Add more fields as needed
+      });
+      console.log('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error.message);
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted:', formValues);
-  };
 
   return (
     <Container>
@@ -37,15 +59,7 @@ const UserProfile = () => {
           margin="normal"
           value={formValues.displayName}
           onChange={handleChange}
-        />
-        <TextField
-          label="Email"
-          name="email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formValues.email}
-          onChange={handleChange}
+          required
         />
         <Button type="submit" variant="contained" color="primary">
           Save Changes

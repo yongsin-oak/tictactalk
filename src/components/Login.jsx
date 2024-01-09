@@ -42,53 +42,39 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gray-100 h-screen flex items-center justify-center">
-      <div className='text-2xl absolute top-2 left-2'>
-        <Link to="/">
-          return
+    <div>
+      {/* <h1 className="text-2xl font-bold mb-6">Login</h1> */}
+      {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4 relative">
+          <TextField type='email'
+            label="Email"
+            variant="standard"
+            className='w-full'
+            onChange={(e) => setEmail(e.target.value)} />
+        </div>
+
+        <div className="mb-4 relative">
+          <TextField type={passwordVisible ? 'text' : 'password'}
+            label="Password"
+            variant="standard"
+            className='w-full'
+            onChange={(e) => setPassword(e.target.value)} />
+          <div
+            className="absolute top-5 right-0 pr-2 flex items-center cursor-pointer"
+            onClick={togglePasswordVisibility}
+          >
+            <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} id="eyeIcon" style={{ color: "#999999" }} />
+          </div>
+        </div>
+
+        <Link to="/Register" className="text-sm text-blue-500 block mb-4">
+          Forgot Password?
         </Link>
-      </div>
-      <div className="bg-white p-8 rounded shadow-md w-96 mx-auto my-auto">
-        <h1 className="text-2xl font-bold mb-6">Login</h1>
-        {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4 relative">
-            <TextField type='email'
-              id="standard-basic"
-              label="Email"
-              variant="standard"
-              className='w-full'
-              onChange={(e) => setEmail(e.target.value)}/>
-          </div>
-
-          <div className="mb-4 relative">
-            <TextField type={passwordVisible ? 'text' : 'password'}
-              id="standard-basic"
-              label="Password"
-              variant="standard"
-              className='bg-white w-full'
-              onChange={(e) => setPassword(e.target.value)} />
-            <div
-              className="absolute top-5 right-0 pr-2 flex items-center cursor-pointer"
-              onClick={togglePasswordVisibility}
-            >
-              <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} id="eyeIcon" style={{ color: "#999999" }} />
-            </div>
-          </div>
-
-          <Link to="/Register" className="text-sm text-blue-500 block mb-4">
-            Forgot Password?
-          </Link>
-
-          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 mb-2">
+          <button type="submit" className="float-right w-32 p-2 rounded mb-2" style={{ backgroundColor: "#A1EEBD", color: "#0B6C2E" }}>
             Log In
           </button>
-
-          <p className="mt-4">
-            Don't have an account? <Link to="/Register" className="text-blue-500">Register here</Link>
-          </p>
-        </form>
-      </div>
+      </form>
     </div>
   );
 };

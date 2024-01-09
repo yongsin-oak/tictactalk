@@ -7,12 +7,15 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { CircularProgress, Stack } from '@mui/material';
 
 const UserAuthContext = createContext();
 
 export function UserAuthContextProvider({ children }) {
-  const [user, setUser] = useState({});
+
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Introduce a loading state
 
   async function signUp(username, email, password) {
     try {
@@ -21,14 +24,17 @@ export function UserAuthContextProvider({ children }) {
       await updateProfile(userCredential.user, { displayName: username });
       // Get user UID
       const uid = userCredential.user.uid;
+      const userDocRef = doc(db, 'users', uid);
 
       // Add additional user data to Firestore
-      await addDoc(collection(db, 'users'), {
+      await setDoc(userDocRef, {
         uid: uid,
         email: email,
-        username: username
+        displayName: username,
         // Add more user information as needed
       });
+      setUser(userCredential.user);
+  
     } catch (error) {
       console.error('Error creating user:', error.message);
       throw error;
@@ -47,11 +53,19 @@ export function UserAuthContextProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, (currentuser) => {
       console.log('Auth', currentuser);
       setUser(currentuser);
+      setLoading(false);
     });
     return () => {
       unsubscribe();
     };
   }, []);
+  if (loading) {
+    return (
+      <Stack sx={{ display: 'flex' }} className='w-full items-center h-full fixed justify-center'>
+        <CircularProgress size={80}/>
+      </Stack>
+    )
+  }
 
   return (
     <UserAuthContext.Provider value={{ user, logIn, signUp, logOut }}>
