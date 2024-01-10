@@ -25,8 +25,9 @@ const UserProfile = () => {
     try {
       // Update user profile in Firebase Authentication
       await updateProfile(auth.currentUser,
-        {displayName: formValues.displayName,
-      });
+        {
+          displayName: formValues.displayName,
+        });
 
       // Update user document in Firestore
       const userDocRef = doc(db, 'users', user.uid);

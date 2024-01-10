@@ -9,7 +9,6 @@ import { motion } from 'framer-motion';
 const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +22,7 @@ const Register = () => {
     e.preventDefault();
     setError("");
     try {
-      await signUp(username, email, password);
+      await signUp(email, password);
     } catch (err) {
       switch (err.code) {
         case "auth/invalid-email":
@@ -47,13 +46,13 @@ const Register = () => {
     <div>
         {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
         <form onSubmit={handleSubmit}>
-          <div className="mb-4 relative">
+          {/* <div className="mb-4 relative">
             <TextField type='text'
               label="Username"
               variant="standard"
               className='w-full'
               onChange={(e) => setUserName(e.target.value)} />
-          </div>
+          </div> */}
           <div className="mb-4 relative">
             <TextField type='email'
               label="Email"
@@ -75,7 +74,6 @@ const Register = () => {
               <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} id="eyeIcon" style={{ color: "#999999" }} />
             </div>
           </div>
-
           <button type="submit" className="float-right w-32 p-2 rounded mb-2" style={{ backgroundColor: "#A1EEBD", color: "#0B6C2E" }}>
             Register
           </button>
