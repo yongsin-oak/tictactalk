@@ -46,15 +46,8 @@ const Register = () => {
     <div>
         {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
         <form onSubmit={handleSubmit}>
-          {/* <div className="mb-4 relative">
-            <TextField type='text'
-              label="Username"
-              variant="standard"
-              className='w-full'
-              onChange={(e) => setUserName(e.target.value)} />
-          </div> */}
           <div className="mb-4 relative">
-            <TextField type='email'
+            <TextField type='text'
               label="Email"
               variant="standard"
               className='w-full'
