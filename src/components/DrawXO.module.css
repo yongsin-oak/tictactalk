@@ -1,0 +1,5 @@
+.draw {
+  stroke-width: .75rem;
+  stroke-linecap: round;
+  fill: transparent;
+}

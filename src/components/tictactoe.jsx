@@ -3,6 +3,7 @@ import { useState } from "react";
 import Button from "./Button";
 import Square from "./Square";
 import './tictactoe.css';
+import DrawX from "./DrawXO";
 
 function App() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -56,7 +57,7 @@ function App() {
             setWinner("x | o");
         }
     };
-    
+
 
     const resetGame = () => {
         setSquares(Array(9).fill(""));
@@ -70,11 +71,12 @@ function App() {
             <Button resetGame={resetGame} />
             <div className="game">
                 {Array.from("012345678").map((ind) => (
-                    <Square
+                    <DrawX
                         key={ind}
                         ind={ind}
                         updateSquares={updateSquares}
-                        clsName={squares[ind]}
+                        clsName={squares}
+                        turn = {turn}
                     />
                 ))}
             </div>

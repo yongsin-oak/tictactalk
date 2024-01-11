@@ -9,7 +9,7 @@ import TicTacToe from './components/tictactoe.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import ProtectedRouteUser from './auth/protectedRouteUser.jsx';
 import AuthPage from './components/Auth.jsx';
-import Hello from './components/test.jsx';
+import DrawX from './components/DrawXO.jsx';
 
 
 const router = createBrowserRouter([
@@ -24,10 +24,6 @@ const router = createBrowserRouter([
   {
     path: "/Tictactoe",
     element: <ProtectedRoute><TicTacToe /></ProtectedRoute>
-  },
-  {
-    path: "/test",
-    element: <Hello />
   }
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(
