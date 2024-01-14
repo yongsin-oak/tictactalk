@@ -1,5 +1,5 @@
-import styles from "./DrawXO.module.css"
 import { motion } from "framer-motion";
+import "./DrawXO.css";
 
 const draw = {
   hidden: { pathLength: 0, opacity: 0 },
@@ -16,7 +16,7 @@ const draw = {
   }
 };
 
-const DrawX = ({ ind, updateSquares, clsName, turn }) => {
+const DrawXO = ({ ind, updateSquares, clsName}) => {
   const handleClick = () => {
     updateSquares(ind);
   };
@@ -42,18 +42,18 @@ const DrawX = ({ ind, updateSquares, clsName, turn }) => {
                 y1="30"
                 x2="140"
                 y2="170"
-                stroke="#00cc88"
+                stroke="white"
                 variants={draw}
                 custom={1}
-                className={styles.draw}
+                className="draw"
               />
               <motion.line
-                x1="0"
+                x1="5"
                 y1="170"
                 x2="140"
                 y2="30"
-                stroke="#00cc88"
-                className={styles.draw}
+                stroke="white"
+                className="draw"
                 variants={draw}
                 custom={1.5}
               />
@@ -62,11 +62,11 @@ const DrawX = ({ ind, updateSquares, clsName, turn }) => {
             <motion.circle
               cx="72.5"
               cy="95"
-              r="80"
-              stroke="#ff0055"
+              r="70"
+              stroke="black"
               variants={draw}
               custom={1}
-              className={styles.draw}
+              className="draw"
             />
           )}
         </motion.svg>
@@ -75,4 +75,4 @@ const DrawX = ({ ind, updateSquares, clsName, turn }) => {
   );
 };
 
-export default DrawX;
+export default DrawXO;

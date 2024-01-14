@@ -4,11 +4,19 @@ import Button from "./Button";
 import Square from "./Square";
 import './tictactoe.css';
 import DrawX from "./DrawXO";
+import ChooseXO from "./ChooseXO";
 
-function App() {
+function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
+    const [sizeSquares, setSizeSquares] = useState(Array(9).fill(-1));
     const [turn, setTurn] = useState("x");
     const [winner, setWinner] = useState(null);
+
+    const [xAvailableSizes, setXAvailableSize] = useState([3, 3, 2]);
+    const [oAvailableSizes, setOAvailableSize] = useState([3, 3, 2]);
+
+    const [xSize, setXSize] = useState(1);
+    const [OSize, setOSize] = useState(1);
 
     const checkEndTheGame = () => {
         for (let square of squares) {
@@ -41,23 +49,50 @@ function App() {
         }
         return null;
     };
+    const canReplace = (ind) => {
+        const currentSize = turn === "x" ? xSize : OSize;
+        const availableSize = turn === "x" ? xAvailableSizes : oAvailableSizes;
+
+        if (availableSize[currentSize] < 1) return false
+        if (squares[ind] && squares[ind] !== turn && sizeSquares[ind] < currentSize) return true;
+        if (!squares[ind]) return true;
+        return false;
+    }
 
     const updateSquares = (ind) => {
-        if (squares[ind] || winner) {
-            return;
-        }
+        if (!canReplace(ind) || winner) return;
+
         const s = squares;
+        let sizeAvailables = turn === "x" ? xAvailableSizes : oAvailableSizes
+        let setSizeAvailables = turn === "x" ? setXAvailableSize : setOAvailableSize
+        let setSize = turn === "x" ? setXSize : setOSize;
+        let size = turn === "x" ? xSize : OSize
+
         s[ind] = turn;
+        sizeSquares[ind] = size;
+        sizeAvailables[size] = sizeAvailables[size] - 1;
+
         setSquares(s);
+        setSizeSquares(sizeSquares);
+        setSizeAvailables(sizeAvailables)
         setTurn(turn === "x" ? "o" : "x");
+
+        if (sizeAvailables[size] < 1)
+            setSize(getMaxSelectableSize(sizeAvailables))
+
         const W = checkWinner();
-        if (W) {
-            setWinner(W);
-        } else if (checkEndTheGame()) {
-            setWinner("x | o");
-        }
+        if (W) setWinner(W);
+        else if (checkEndTheGame()) setWinner("x | o");
     };
 
+    const getMaxSelectableSize = (availableSize) => {
+        for (let index = availableSize.length - 1; index > -1; index--) {
+            const size = availableSize[index];
+            if (size > 0) return index;
+        }
+
+        return -1;
+    }
 
     const resetGame = () => {
         setSquares(Array(9).fill(""));
@@ -65,6 +100,14 @@ function App() {
         setWinner(null);
     };
 
+
+    const getCurrentAvailableSize = () => {
+        return oAvailableSizes;
+    }
+
+    const getCurrentSize = () => {
+        return turn === "x" ? xSize : OSize;
+    }
     return (
         <div className="tictactoe">
             <h1> TIC-TAC-TOE </h1>
@@ -76,13 +119,69 @@ function App() {
                         ind={ind}
                         updateSquares={updateSquares}
                         clsName={squares}
-                        turn = {turn}
                     />
                 ))}
             </div>
             <div className={`turn ${turn === "x" ? "left" : "right"}`}>
-                <Square clsName="x" />
-                <Square clsName="o" />
+                <motion.svg
+                    width="100"
+                    height="100"
+                    viewBox="-25 0 200 200"
+                    initial="hidden"
+                    animate="visible"
+                >
+                    <motion.line
+                        x1="5"
+                        y1="30"
+                        x2="145"
+                        y2="170"
+                        stroke="#ffff"
+                        className="draw"
+                    />
+                    <motion.line
+                        x1="5"
+                        y1="170"
+                        x2="145"
+                        y2="30"
+                        stroke="#ffff"
+                        className="draw"
+                    />
+                </motion.svg>
+                <motion.svg
+                    width="100"
+                    height="100"
+                    viewBox="-25 0 200 200"
+                    initial="hidden"
+                    animate="visible"
+                >
+                    <motion.circle
+                        cx="75"
+                        cy="95"
+                        r="70"
+                        stroke="black"
+                        className="draw"
+                    />
+                </motion.svg>
+            </div>
+            <div className='grid grid-cols-3 gap-1 my-2'>
+                {
+                    [
+                        [0, 1, 2].map((valueSize, ind) => {
+                            if (getCurrentAvailableSize()[valueSize] < 1) return undefined;
+                            return <div key={ind} className={"sizeBtn square " + (getCurrentSize() === valueSize ? "enableSizeBtn" : "")}>
+                                <ChooseXO
+                                    clsName={turn}
+                                    updateSquares={(idx) => {
+                                        let setSizeAvailables = turn === "x" ? setXSize : setOSize
+                                        setSizeAvailables(valueSize)
+                                    }}
+                                    size={valueSize}
+                                    customText={getCurrentAvailableSize()[valueSize]}
+                                />
+                            </div>
+                        })
+                    ]
+                }
             </div>
             <AnimatePresence>
                 {winner && (
@@ -154,4 +253,4 @@ function App() {
     );
 }
 
-export default App;
+export default Tictactoe;

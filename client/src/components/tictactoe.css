@@ -130,3 +130,6 @@
     display: flex;
     gap: 15px;
 }
+.square.enableSizeBtn{
+    border: 2px solid black;
+}

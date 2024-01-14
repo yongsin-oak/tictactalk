@@ -28,7 +28,7 @@ function HomepageLogging() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!username.displayName.trim()) {
             // Display an error alert if the username is blank
             setIsError(true);
@@ -58,7 +58,7 @@ function HomepageLogging() {
             await updateDoc(userDocRef, {
                 username: username.displayName,
             });
-            
+
             // Reset error state
             setIsError(false);
             setError("Username changed successfully");
@@ -130,6 +130,18 @@ function HomepageLogging() {
                 text-2xl" onClick={handleLogout}>
                     Log out
                 </button>
+                <Link to="/CreateRoom">
+                    <motion.button
+                        className="bg-transparent h-14 w-full 
+            hover:bg-blue-500 
+            text-blue-700 font-thin 
+            hover:text-white py-2 px-4 border border-blue-500 
+            hover:border-transparent rounded text-base"
+                        whileTap={{ transform: 'translateY(5px)' }}
+                    >
+                        Create Room
+                    </motion.button>
+                </Link>
             </Box>
         </div>
     );
