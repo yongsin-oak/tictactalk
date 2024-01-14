@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const ChooseXO = ({ size, updateSquares, ind, customText }) => {
+const ChooseX = ({ size, updateSquares, ind, customText }) => {
 
     const handleClick = () => {
         if (!updateSquares) return;
-        updateSquares(ind);
+        updateSquares();
     };
 
     const selectSize = (size) => {
@@ -28,11 +28,20 @@ const ChooseXO = ({ size, updateSquares, ind, customText }) => {
                 animate="visible"
                 style={{ transform: `scale(${selectSize(size)}, ${selectSize(size)})` }}
             >
-                <motion.circle
-                    cx="72.5"
-                    cy="95"
-                    r="70"
-                    stroke="black"
+                <motion.line
+                    x1="0"
+                    y1="30"
+                    x2="140"
+                    y2="170"
+                    stroke="white"
+                    className="draw"
+                />
+                <motion.line
+                    x1="5"
+                    y1="170"
+                    x2="140"
+                    y2="30"
+                    stroke="white"
                     className="draw"
                 />
             </motion.svg>
@@ -43,5 +52,5 @@ const ChooseXO = ({ size, updateSquares, ind, customText }) => {
     );
 };
 
-export default ChooseXO;
+export default ChooseX;
 

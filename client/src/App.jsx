@@ -1,24 +1,21 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useUserAuth } from './context/UserAuthContext';
 import HomePage from './components/HomePage';
 import HomepageLogging from './components/HomepageLogging';
-import io from 'socket.io-client'; // Import the socket.io-client library
+import io from 'socket.io-client';
 import './App.css';
 
 const App = () => {
   const { user } = useUserAuth();
+  const socket = io('http://localhost:5000'); // Replace with your server URL
 
-  useEffect(() => {
-    // Connect to the Socket.IO server
-    const socket = io('http://localhost:5000'); // Update with your server URL
+  socket.on('connect', () => {
+    console.log('Connected to Socket.io server');
+  });
 
-    // Add any socket event listeners or emit events as needed
-
-    return () => {
-      // Clean up the socket connection when the component unmounts
-      socket.disconnect();
-    };
-  }, []); // Empty dependency array ensures this effect runs once when the component mounts
+  socket.on('disconnect', () => {
+    console.log('Disconnected from Socket.io server');
+  });
 
   return (
     <div className="flex h-screen items-center justify-center">

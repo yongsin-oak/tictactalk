@@ -16,26 +16,34 @@ const draw = {
   }
 };
 
-const DrawXO = ({ ind, updateSquares, clsName}) => {
+const DrawXO = ({ ind, updateSquares, clsName, size, turn }) => {
   const handleClick = () => {
     updateSquares(ind);
   };
+  const selectSize = (size) => {
+    if (size === undefined) return 1;
+    let sizes = [0.5, 0.75, 1];
+    return sizes[size];
+  }
   return (
     <motion.div
+
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       className="square"
       onClick={handleClick}
     >
-      {clsName[ind] && (
+      {clsName && (
         <motion.svg
+          key={size}
           width="100"
           height="100"
           viewBox="-25 0 200 200"
           initial="hidden"
           animate="visible"
+          style={{ transform: `scale(${selectSize(size)}, ${selectSize(size)})` }}
         >
-          {clsName[ind] === "x" ? (
+          {clsName === "x" ? (
             <>
               <motion.line
                 x1="0"

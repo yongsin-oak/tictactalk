@@ -4,7 +4,8 @@ import Button from "./Button";
 import Square from "./Square";
 import './tictactoe.css';
 import DrawX from "./DrawXO";
-import ChooseXO from "./ChooseXO";
+import ChooseO from "./ChooseO";
+import ChooseX from "./ChooseX";
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -16,7 +17,7 @@ function Tictactoe() {
     const [oAvailableSizes, setOAvailableSize] = useState([3, 3, 2]);
 
     const [xSize, setXSize] = useState(1);
-    const [OSize, setOSize] = useState(1);
+    const [oSize, setOSize] = useState(1);
 
     const checkEndTheGame = () => {
         for (let square of squares) {
@@ -50,7 +51,7 @@ function Tictactoe() {
         return null;
     };
     const canReplace = (ind) => {
-        const currentSize = turn === "x" ? xSize : OSize;
+        const currentSize = turn === "x" ? xSize : oSize;
         const availableSize = turn === "x" ? xAvailableSizes : oAvailableSizes;
 
         if (availableSize[currentSize] < 1) return false
@@ -58,7 +59,6 @@ function Tictactoe() {
         if (!squares[ind]) return true;
         return false;
     }
-
     const updateSquares = (ind) => {
         if (!canReplace(ind) || winner) return;
 
@@ -66,7 +66,7 @@ function Tictactoe() {
         let sizeAvailables = turn === "x" ? xAvailableSizes : oAvailableSizes
         let setSizeAvailables = turn === "x" ? setXAvailableSize : setOAvailableSize
         let setSize = turn === "x" ? setXSize : setOSize;
-        let size = turn === "x" ? xSize : OSize
+        let size = turn === "x" ? xSize : oSize
 
         s[ind] = turn;
         sizeSquares[ind] = size;
@@ -78,12 +78,14 @@ function Tictactoe() {
         setTurn(turn === "x" ? "o" : "x");
 
         if (sizeAvailables[size] < 1)
-            setSize(getMaxSelectableSize(sizeAvailables))
-
+            setSize(getMaxSelectableSize(turn === "x" ? xAvailableSizes : oAvailableSizes))
         const W = checkWinner();
         if (W) setWinner(W);
         else if (checkEndTheGame()) setWinner("x | o");
     };
+    const toAlert = () => {
+        alert(xSize)
+    }
 
     const getMaxSelectableSize = (availableSize) => {
         for (let index = availableSize.length - 1; index > -1; index--) {
@@ -104,13 +106,13 @@ function Tictactoe() {
     const getCurrentAvailableSize = () => {
         return oAvailableSizes;
     }
-
-    const getCurrentSize = () => {
-        return turn === "x" ? xSize : OSize;
+    const getCurrentAvailableSizeX = () => {
+        return xAvailableSizes;
     }
     return (
         <div className="tictactoe">
             <h1> TIC-TAC-TOE </h1>
+            <button onClick={toAlert}></button>
             <Button resetGame={resetGame} />
             <div className="game">
                 {Array.from("012345678").map((ind) => (
@@ -118,7 +120,9 @@ function Tictactoe() {
                         key={ind}
                         ind={ind}
                         updateSquares={updateSquares}
-                        clsName={squares}
+                        clsName={squares[ind]}
+                        turn = {turn}
+                        size={sizeSquares[ind]}
                     />
                 ))}
             </div>
@@ -167,16 +171,37 @@ function Tictactoe() {
                 {
                     [
                         [0, 1, 2].map((valueSize, ind) => {
-                            if (getCurrentAvailableSize()[valueSize] < 1) return undefined;
-                            return <div key={ind} className={"sizeBtn square " + (getCurrentSize() === valueSize ? "enableSizeBtn" : "")}>
-                                <ChooseXO
+                            if (xAvailableSizes[valueSize] < 1) return undefined;
+                            return <div key={ind} className={"sizeBtn square " + (xSize === valueSize ? "enableSizeBtn" : "")}>
+                                <ChooseX
                                     clsName={turn}
+                                    ind={ind}
                                     updateSquares={(idx) => {
-                                        let setSizeAvailables = turn === "x" ? setXSize : setOSize
+                                        let setSizeAvailables =  setXSize;
                                         setSizeAvailables(valueSize)
                                     }}
                                     size={valueSize}
-                                    customText={getCurrentAvailableSize()[valueSize]}
+                                    customText={getCurrentAvailableSizeX()[valueSize]}
+                                />
+                            </div>
+                        })
+                    ]
+                }
+            </div>
+            <div className='grid grid-cols-3 gap-1 my-2'>
+                {
+                    [
+                        [0, 1, 2].map((valueSize2, ind) => {
+                            if (oAvailableSizes[valueSize2] < 1) return undefined;
+                            return <div key={ind} className={"sizeBtn square " + (oSize === valueSize2 ? "enableSizeBtn" : "")}>
+                                <ChooseO
+                                    clsName={turn}
+                                    updateSquares={(idx) => {
+                                        let setSizeAvailables = setOSize;
+                                        setSizeAvailables(valueSize2)
+                                    }}
+                                    size={valueSize2}
+                                    customText={getCurrentAvailableSize()[valueSize2]}
                                 />
                             </div>
                         })

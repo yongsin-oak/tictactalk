@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useUserAuth } from '../context/UserAuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Box, Collapse } from '@mui/material';
+import { Alert, Box, Collapse, Stack } from '@mui/material';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { Edit } from '@mui/icons-material';
 import { onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { motion } from 'framer-motion';
+import { io } from 'socket.io-client';
 
 function HomepageLogging() {
+    const socket = io('http://localhost:5000');
     const { logOut, user } = useUserAuth();
     const navigate = useNavigate();
     const [iserror, setIsError] = useState(false);
@@ -18,7 +20,6 @@ function HomepageLogging() {
     const [username, setUserName] = useState({
         displayName: user.displayName,
     });
-
     useEffect(() => {
         // Update form values when user changes (e.g., on login)
         setUserName({
@@ -84,7 +85,25 @@ function HomepageLogging() {
             console.log(err.message);
         }
     };
+    const handleFindMatch = () => {
+        // Emit a "findMatch" event to the server
+        socket.emit("findMatch");
+    };
+    useEffect(() => {
+        // Initialize a Socket.IO connection
+        const socket = io("http://localhost:5000");
 
+        // Handle game start event
+        socket.on("gameStart", ({ roomName }) => {
+            // Redirect to the game page with the room name
+            navigate(`/tictactoe?room=${roomName}`);
+        });
+
+        // Clean up the socket connection when the component unmounts
+        return () => {
+            socket.disconnect();
+        };
+    }, [navigate]);
     return (
         <div>
             {error && <Collapse in={open}>
@@ -116,11 +135,22 @@ function HomepageLogging() {
                     <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
                 border-green-700 hover:border-green-500 rounded
-                 text-2xl" whileTap={{ transform: "translateY(5px)" }}>
+                 text-2xl" whileTap={{ transform: "translateY(5px)" }}
+                        onClick={handleFindMatch}>
                         Play!
                     </motion.button>
                 </Link>
-
+                {/* <Link>
+                    <motion.button
+                        className="bg-transparent h-14 w-full 
+                    hover:bg-blue-500 
+                    text-blue-700 font-thin 
+                    hover:text-white py-2 px-4 border border-blue-500 
+                    hover:border-transparent rounded text-base"
+                        whileTap={{ transform: 'translateY(5px)' }}
+                    >
+                    </motion.button>
+                </Link> */}
                 <button
                     className="bg-transparent h-14 w-full 
                 hover:bg-red-500 
@@ -130,18 +160,6 @@ function HomepageLogging() {
                 text-2xl" onClick={handleLogout}>
                     Log out
                 </button>
-                <Link to="/CreateRoom">
-                    <motion.button
-                        className="bg-transparent h-14 w-full 
-            hover:bg-blue-500 
-            text-blue-700 font-thin 
-            hover:text-white py-2 px-4 border border-blue-500 
-            hover:border-transparent rounded text-base"
-                        whileTap={{ transform: 'translateY(5px)' }}
-                    >
-                        Create Room
-                    </motion.button>
-                </Link>
             </Box>
         </div>
     );
