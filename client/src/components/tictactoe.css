@@ -45,8 +45,6 @@
 
 .turn .square,
 .winner .square {
-    width: 70px;
-    height: 70px;
     pointer-events: none;
     border-color: transparent;
 }

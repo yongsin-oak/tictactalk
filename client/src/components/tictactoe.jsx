@@ -3,9 +3,9 @@ import { useState } from "react";
 import Button from "./Button";
 import Square from "./Square";
 import './tictactoe.css';
-import DrawX from "./DrawXO";
 import ChooseO from "./ChooseO";
 import ChooseX from "./ChooseX";
+import DrawXO from "./DrawXO";
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -13,8 +13,8 @@ function Tictactoe() {
     const [turn, setTurn] = useState("x");
     const [winner, setWinner] = useState(null);
 
-    const [xAvailableSizes, setXAvailableSize] = useState([3, 3, 2]);
-    const [oAvailableSizes, setOAvailableSize] = useState([3, 3, 2]);
+    const [xAvailableSizes, setXAvailableSize] = useState([3, 3, 3]);
+    const [oAvailableSizes, setOAvailableSize] = useState([3, 3, 3]);
 
     const [xSize, setXSize] = useState(1);
     const [oSize, setOSize] = useState(1);
@@ -54,11 +54,12 @@ function Tictactoe() {
         const currentSize = turn === "x" ? xSize : oSize;
         const availableSize = turn === "x" ? xAvailableSizes : oAvailableSizes;
 
-        if (availableSize[currentSize] < 1) return false
-        if (squares[ind] && squares[ind] !== turn && sizeSquares[ind] < currentSize) return true;
+        if (availableSize[currentSize] < 1) return false;
+        if (squares[ind] && sizeSquares[ind] < currentSize) return true;
         if (!squares[ind]) return true;
         return false;
-    }
+    };
+
     const updateSquares = (ind) => {
         if (!canReplace(ind) || winner) return;
 
@@ -84,7 +85,7 @@ function Tictactoe() {
         else if (checkEndTheGame()) setWinner("x | o");
     };
     const toAlert = () => {
-        alert(xSize)
+        alert(xAvailableSizes)
     }
 
     const getMaxSelectableSize = (availableSize) => {
@@ -100,6 +101,8 @@ function Tictactoe() {
         setSquares(Array(9).fill(""));
         setTurn("x");
         setWinner(null);
+        setXAvailableSize([3, 3, 3]);
+        setOAvailableSize([3, 3, 3]);
     };
 
 
@@ -116,12 +119,12 @@ function Tictactoe() {
             <Button resetGame={resetGame} />
             <div className="game">
                 {Array.from("012345678").map((ind) => (
-                    <DrawX
+                    <DrawXO
                         key={ind}
                         ind={ind}
                         updateSquares={updateSquares}
                         clsName={squares[ind]}
-                        turn = {turn}
+                        turn={turn}
                         size={sizeSquares[ind]}
                     />
                 ))}
@@ -177,7 +180,7 @@ function Tictactoe() {
                                     clsName={turn}
                                     ind={ind}
                                     updateSquares={(idx) => {
-                                        let setSizeAvailables =  setXSize;
+                                        let setSizeAvailables = setXSize;
                                         setSizeAvailables(valueSize)
                                     }}
                                     size={valueSize}
@@ -248,16 +251,26 @@ function Tictactoe() {
                                         duration: 0.2,
                                     },
                                 }}
-                                className="win"
+                                className="win w-fit h-fit"
                             >
                                 {winner === "x | o" ? (
                                     <>
-                                        <Square clsName="x" />
-                                        <Square clsName="o" />
+                                        <ChooseX
+                                            clsName={turn}
+                                            size={2}
+                                        />
+                                        <ChooseO
+                                            clsName={turn}
+                                            size={2}
+                                        />
                                     </>
                                 ) : (
                                     <>
-                                        <Square clsName={winner} />
+                                        <DrawXO
+                                            updateSquares={updateSquares}
+                                            clsName={winner}
+                                            size={1}
+                                        />
                                     </>
                                 )}
                             </motion.div>
