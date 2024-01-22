@@ -3,10 +3,9 @@ import Login from './Login'; // Import your Login component
 import Register from './Register'; // Import your Register component
 import { motion } from 'framer-motion';
 import './Auth.css';
-import { Link } from 'react-router-dom';
 
-const AuthPage = () => {
-    const [login, setLogin] = useState(true);
+const AuthPage = ({LoginSet}) => {
+    const [login, setLogin] = useState(LoginSet);
 
     const setTrue = () => {
         setLogin(true);
@@ -16,11 +15,6 @@ const AuthPage = () => {
     };
     return (
         <div className="h-screen flex items-center justify-center relative">
-            <div className='text-2xl absolute top-2 left-2'>
-                <Link to="/">
-                    return
-                </Link>
-            </div>
             <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}

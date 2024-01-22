@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Button from "./Button";
-import Square from "./Square";
 import './tictactoe.css';
 import ChooseO from "./ChooseO";
 import ChooseX from "./ChooseX";

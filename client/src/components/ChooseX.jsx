@@ -5,7 +5,7 @@ const ChooseX = ({ size, updateSquares, ind, customText }) => {
 
     const handleClick = () => {
         if (!updateSquares) return;
-        updateSquares();
+        updateSquares(ind);
     };
 
     const selectSize = (size) => {

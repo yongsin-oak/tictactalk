@@ -5,11 +5,10 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
-import TicTacToe from './components/tictactoe.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import ProtectedRouteUser from './auth/protectedRouteUser.jsx';
-import AuthPage from './components/Auth.jsx';
 import CreateRoom from './components/CreateRoom.jsx';
+import Game from './components/Game.jsx';
 
 
 const router = createBrowserRouter([
@@ -18,12 +17,8 @@ const router = createBrowserRouter([
     element: <App />
   },
   {
-    path: "/Auth",
-    element: <ProtectedRouteUser><AuthPage /></ProtectedRouteUser>
-  },
-  {
-    path: "/Tictactoe",
-    element: <ProtectedRoute><TicTacToe /></ProtectedRoute>
+    path: "/Game",
+    element: <ProtectedRoute><Game /></ProtectedRoute>
   },
   {
     path: "/CreateRoom",

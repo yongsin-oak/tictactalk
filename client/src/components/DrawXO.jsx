@@ -16,7 +16,7 @@ const draw = {
   }
 };
 
-const DrawXO = ({ ind, updateSquares, clsName, size, turn }) => {
+const DrawXO = ({ ind, updateSquares, clsName, size }) => {
   const handleClick = () => {
     updateSquares(ind);
   };

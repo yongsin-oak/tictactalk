@@ -8,10 +8,8 @@ import { auth, db } from '../firebase';
 import { Edit } from '@mui/icons-material';
 import { onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { motion } from 'framer-motion';
-import { io } from 'socket.io-client';
 
 function HomepageLogging() {
-    const socket = io('http://localhost:5000');
     const { logOut, user } = useUserAuth();
     const navigate = useNavigate();
     const [iserror, setIsError] = useState(false);
@@ -20,6 +18,7 @@ function HomepageLogging() {
     const [username, setUserName] = useState({
         displayName: user.displayName,
     });
+    
     useEffect(() => {
         // Update form values when user changes (e.g., on login)
         setUserName({
@@ -85,62 +84,44 @@ function HomepageLogging() {
             console.log(err.message);
         }
     };
-    const handleFindMatch = () => {
-        // Emit a "findMatch" event to the server
-        socket.emit("findMatch");
-    };
-    useEffect(() => {
-        // Initialize a Socket.IO connection
-        const socket = io("http://localhost:5000");
-
-        // Handle game start event
-        socket.on("gameStart", ({ roomName }) => {
-            // Redirect to the game page with the room name
-            navigate(`/tictactoe?room=${roomName}`);
-        });
-
-        // Clean up the socket connection when the component unmounts
-        return () => {
-            socket.disconnect();
-        };
-    }, [navigate]);
     return (
-        <div>
-            {error && <Collapse in={open}>
-                <Alert onClose={() => { setOpen(false); }} severity={iserror ? "error" : "success"} variant="filled" className='my-3'>{error}</Alert>
-            </Collapse>}
-            <form onSubmit={handleSubmit}>
-                <div className='flex w-full justify-center'>
-                    <p>
-                        Welcome,
-                    </p>
-                    <input
-                        type="text"
-                        name="displayName"
-                        className='mx-1 w-1/4 bg-transparent px-1 focus:outline-none'
-                        placeholder='Name?'
-                        onChange={handleChange}
-                        value={username.displayName}
-                        autoComplete="off"
-                    />
-                    <motion.button whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.9 }}>
-                        <Edit></Edit>
-                    </motion.button>
-                </div>
-            </form>
-            {/* Rest of your code */}
-            <Box mt={2} className="gap-2 grid w-4/12 m-auto">
-                <Link to="/tictactoe" className='grid'>
-                    <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
+        <div className="text-center">
+            <h1 className="text-7xl font-thin mb-6">Tic Tac Talk</h1>
+            <div>
+                {error && <Collapse in={open}>
+                    <Alert onClose={() => { setOpen(false); }} severity={iserror ? "error" : "success"} variant="filled" className='my-3'>{error}</Alert>
+                </Collapse>}
+                <form onSubmit={handleSubmit}>
+                    <div className='flex w-full justify-center'>
+                        <p>
+                            Welcome,
+                        </p>
+                        <input
+                            type="text"
+                            name="displayName"
+                            className='mx-1 w-1/4 bg-transparent px-1 focus:outline-none'
+                            placeholder='Name?'
+                            onChange={handleChange}
+                            value={username.displayName}
+                            autoComplete="off"
+                        />
+                        <motion.button whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}>
+                            <Edit></Edit>
+                        </motion.button>
+                    </div>
+                </form>
+                {/* Rest of your code */}
+                <Box mt={2} className="gap-2 grid w-4/12 m-auto">
+                    <Link to="/Game" className='grid'>
+                        <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
                 border-green-700 hover:border-green-500 rounded
-                 text-2xl" whileTap={{ transform: "translateY(5px)" }}
-                        onClick={handleFindMatch}>
-                        Play!
-                    </motion.button>
-                </Link>
-                {/* <Link>
+                 text-2xl" whileTap={{ transform: "translateY(5px)" }}>
+                            Play!
+                        </motion.button>
+                    </Link>
+                    {/* <Link>
                     <motion.button
                         className="bg-transparent h-14 w-full 
                     hover:bg-blue-500 
@@ -151,17 +132,19 @@ function HomepageLogging() {
                     >
                     </motion.button>
                 </Link> */}
-                <button
-                    className="bg-transparent h-14 w-full 
+                    <button
+                        className="bg-transparent h-14 w-full 
                 hover:bg-red-500 
                 text-red-700 font-thin 
                 hover:text-white py-2 px-4 border border-red-500 
                 hover:border-transparent rounded
                 text-2xl" onClick={handleLogout}>
-                    Log out
-                </button>
-            </Box>
+                        Log out
+                    </button>
+                </Box>
+            </div>
         </div>
+
     );
 }
 
