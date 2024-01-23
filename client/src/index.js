@@ -7,7 +7,6 @@ import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import ProtectedRouteUser from './auth/protectedRouteUser.jsx';
-import CreateRoom from './components/CreateRoom.jsx';
 import Game from './components/Game.jsx';
 
 
@@ -19,10 +18,6 @@ const router = createBrowserRouter([
   {
     path: "/Game",
     element: <ProtectedRoute><Game /></ProtectedRoute>
-  },
-  {
-    path: "/CreateRoom",
-    element: <ProtectedRoute><CreateRoom /></ProtectedRoute>
   },
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(

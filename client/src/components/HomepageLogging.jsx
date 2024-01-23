@@ -8,6 +8,7 @@ import { auth, db } from '../firebase';
 import { Edit } from '@mui/icons-material';
 import { onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { motion } from 'framer-motion';
+import { io } from 'socket.io-client';
 
 function HomepageLogging() {
     const { logOut, user } = useUserAuth();
@@ -18,7 +19,8 @@ function HomepageLogging() {
     const [username, setUserName] = useState({
         displayName: user.displayName,
     });
-    
+    const socket = io('http://localhost:5000')
+
     useEffect(() => {
         // Update form values when user changes (e.g., on login)
         setUserName({
@@ -84,6 +86,9 @@ function HomepageLogging() {
             console.log(err.message);
         }
     };
+    const handleFindMatch = () => {
+        socket.emit('findMatch', { userId: user.uid });
+    };
     return (
         <div className="text-center">
             <h1 className="text-7xl font-thin mb-6">Tic Tac Talk</h1>
@@ -117,21 +122,11 @@ function HomepageLogging() {
                         <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
                 border-green-700 hover:border-green-500 rounded
-                 text-2xl" whileTap={{ transform: "translateY(5px)" }}>
+                 text-2xl" whileTap={{ transform: "translateY(5px)" }}
+                            onClick={handleFindMatch}>
                             Play!
                         </motion.button>
                     </Link>
-                    {/* <Link>
-                    <motion.button
-                        className="bg-transparent h-14 w-full 
-                    hover:bg-blue-500 
-                    text-blue-700 font-thin 
-                    hover:text-white py-2 px-4 border border-blue-500 
-                    hover:border-transparent rounded text-base"
-                        whileTap={{ transform: 'translateY(5px)' }}
-                    >
-                    </motion.button>
-                </Link> */}
                     <button
                         className="bg-transparent h-14 w-full 
                 hover:bg-red-500 
