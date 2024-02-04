@@ -11,22 +11,46 @@ import { motion } from 'framer-motion';
 import { io } from 'socket.io-client';
 
 function HomepageLogging() {
+    const [errorMessage, setErrorMessage] = useState('');
+    const [roomCode, setRoomCode] = useState('');
+    const [showAlert, setShowAlert] = useState(false);
     const { logOut, user } = useUserAuth();
     const navigate = useNavigate();
     const [iserror, setIsError] = useState(false);
     const [error, setError] = useState("");
     const [open, setOpen] = useState(true);
+    const [socket, setSocket] = useState(null);
     const [username, setUserName] = useState({
         displayName: user.displayName,
     });
-    const socket = io('http://localhost:5000')
 
+    useEffect(() => {
+        const socket = io('http://127.0.0.1:3001', {
+            transports: ['websocket'],
+            autoConnect: true,
+            cors: {
+                origin: '*',
+            },
+        });
+        setSocket(socket);
+
+        return () => {
+            if (socket) {
+                socket.close();
+            }
+        };
+    }, []);
     useEffect(() => {
         // Update form values when user changes (e.g., on login)
         setUserName({
             displayName: user.displayName,
         });
     }, [user]);
+
+    useEffect(() => {
+        // Update form values when user changes (e.g., on login)
+        if (!socket) return;
+    }, [socket]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -43,16 +67,6 @@ function HomepageLogging() {
             // Update user profile in Firebase Authentication
             await updateProfile(auth.currentUser, {
                 displayName: username.displayName,
-            });
-
-            // Wait for the authentication state to change
-            await new Promise((resolve) => {
-                const unsubscribe = onAuthStateChanged(auth, (updatedUser) => {
-                    if (updatedUser && updatedUser.displayName === username.displayName) {
-                        resolve();
-                        unsubscribe(); // Unsubscribe once the condition is met
-                    }
-                });
             });
 
             // Update user document in Firestore
@@ -86,8 +100,42 @@ function HomepageLogging() {
             console.log(err.message);
         }
     };
-    const handleFindMatch = () => {
-        socket.emit('findMatch', { userId: user.uid });
+    // const handleFindMatch = () => {
+    //     socket.emit('findMatch', { userId: user.uid });
+    // };
+
+    function generateRoomCode() {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let roomCode = "";
+
+        /* The above code is generating a random string of characters by looping through a set of letters
+        and appending a randomly selected letter to the "roomCode" variable. The loop will run 7 times,
+        generating a 7-character random string. */
+        for (let i = 0; i < 7; i++) {
+            roomCode += letters[Math.floor(Math.random() * letters.length)];
+        }
+
+        return roomCode;
+    }
+    const handleCreateRoom = () => {
+        const newRoomCode = generateRoomCode();
+        navigate(`/roomgame?name=${encodeURIComponent(username.displayName)}&roomCode=${encodeURIComponent(newRoomCode)}`);
+    };
+    const handleJoinRoom = () => {
+        if (roomCode.length === 0) {
+            setErrorMessage('RoomCode?');
+            setShowAlert(true);
+            return;
+        }
+
+        /* The above code is using JavaScript to navigate to a specific URL. It is using template literals
+        to construct the URL with the values of the `name` and `roomCode` variables. The
+        `encodeURIComponent` function is used to encode the values in case they contain special
+        characters that could break the URL. */
+        navigate(`/roomgame?name=${encodeURIComponent(username.displayName)}&roomCode=${encodeURIComponent(roomCode)}`);
+    };
+    const handleRoomCodeChange = (event) => {
+        setRoomCode(event.target.value);
     };
     return (
         <div className="text-center">
@@ -116,17 +164,25 @@ function HomepageLogging() {
                         </motion.button>
                     </div>
                 </form>
-                {/* Rest of your code */}
                 <Box mt={2} className="gap-2 grid w-4/12 m-auto">
-                    <Link to="/Game" className='grid'>
-                        <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
+                    <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
                 border-green-700 hover:border-green-500 rounded
                  text-2xl" whileTap={{ transform: "translateY(5px)" }}
-                            onClick={handleFindMatch}>
-                            Play!
-                        </motion.button>
-                    </Link>
+                        onClick={handleCreateRoom}>
+                        Play!
+                    </motion.button>
+                    <div className='mb-2'>
+                        <label className='font-bold text-gray-700 block' htmlFor="roomCode">RoomCode?</label>
+                        <input className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5' id='roomCode' type="text" value={roomCode} onChange={handleRoomCodeChange} placeholder="AZSQCT" />
+                    </div>
+                    <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
+                text-white font-thin py-2 px-4 border-b-4 
+                border-green-700 hover:border-green-500 rounded
+                 text-2xl" whileTap={{ transform: "translateY(5px)" }}
+                        onClick={handleJoinRoom}>
+                        Join
+                    </motion.button>
                     <button
                         className="bg-transparent h-14 w-full 
                 hover:bg-red-500 

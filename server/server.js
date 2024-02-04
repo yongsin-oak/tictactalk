@@ -1,51 +1,155 @@
+/* These lines of code are importing the necessary modules and setting up the basic configuration for a
+Node.js server using Express, Socket.io, and CORS. */
 const express = require('express');
-const app = express();
 const http = require('http');
-const { Server } = require('socket.io');
+const socketio = require('socket.io');
 const cors = require('cors');
+const app = express();
 
-app.use(cors());
+const whitelist = ["http://127.0.0.1:3000", "http://localhost:3000"];
 
+const admin = require('firebase-admin');
+
+const serviceAccount = require('./tictactalk-firebase-adminsdk-tlb1y-ca38f272aa.json');
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+
+const firestore = admin.firestore();
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error("Not allowed by CORS"))
+        }
+    },
+    credentials: true,
+}
+
+app.use(cors(corsOptions));
 const server = http.createServer(app);
-
-const io = new Server(server, {
+const io = socketio(server, {
     cors: {
         origin: "http://localhost:3000",
         methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
-const waitingUsers = [];
+const PORT = process.env.PORT || 3001;
 
-io.on("connection", (socket) => {
-    console.log("connected: " + socket.id);
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
-    socket.on("findMatch", () => {
-        console.log("User wants to find a match:", socket.id);
+const rooms = {};
+const roomsCollection = firestore.collection('rooms');
+io.on('connection', (socket) => {
+    console.log(`Socket connected: ${socket.id}`);
+    // socket.on('getAuth', (user) => {
+    //     console.log(user.user.uid);
+    // })
 
-        // Check if the user is already waiting
-        if (!waitingUsers.includes(socket.id)) {
-            // Add the user to the list of waiting users
-            waitingUsers.push(socket.id);
+    socket.on('joinRoom', async ({ name, roomCode, user }) => {
+        socket.join(roomCode);
+        try {
+            console.log(user.email);
+            const roomDoc = await roomsCollection.doc(roomCode).get();
 
-            // Check if there is another user looking for a match
-            if (waitingUsers.length >= 2) {
-                // Pair the first two users found
-                const user1 = waitingUsers.shift();
-                const user2 = waitingUsers.shift();
+            if (!roomDoc.exists) {
+                const roles = "xo";
+                let role = "";
+                for (let i = 0; i < 1; i++) {
+                    role += roles[Math.floor(Math.random() * 2)];
+                }
+                rooms[roomCode] = {
+                    players: [{ name: name, id: socket.id }],
+                    board: Array(9).fill(null),
+                    currentPlayerIndex: 0,
+                };
+                // Room doesn't exist, create a new one
+                await roomsCollection.doc(roomCode).set({
+                    players: [{ name: name, id: user.uid, role: role }],
+                    turns: role === 'x' ? 0 : 1,
+                    squares: Array(9).fill(""),
+                    pieceSizes: Array(9).fill(-1),
+                    gameStarted: false,
+                });
+            } else {
+                rooms[roomCode].players.push({ name: name, id: socket.id });
+                console.log(rooms[roomCode].players)
+                const players = roomDoc.data().players;
+                const currentRoomData = (await roomsCollection.doc(roomCode).get()).data();
+                if (currentRoomData.players.length === 2) {
+                    if (players[0].id === user.uid || players[1].id === user.uid) {
+                        const currentPlayer = currentRoomData.players[currentRoomData.turns];
+                        const anotherPlayer = currentRoomData.players[currentRoomData.turns === 0 ? 1 : 0];
+                        // io.to(roomCode).emit('gameStart', currentPlayer, anotherPlayer);
+                        io.to(roomCode).emit('gameStart', {
+                            currentPlayer: currentPlayer, anotherPlayer: anotherPlayer,
+                            currentPlayerRole: currentPlayer.role, anotherPlayer : anotherPlayer.role,
+                        });
+                        io.to(roomCode).emit('updateBoard', {
+                            squares: currentRoomData.squares, nextPlayer: currentRoomData.players[currentRoomData.turns].name,
+                            pieceSizes: currentRoomData.pieceSizes, playerTurn: currentRoomData.players[currentRoomData.turns].role
+                        });
+                    }
+                    return;
+                }
+                players.push({ name: name, id: user.uid, role: players[0].role === "x" ? "o" : "x" });
 
-                // Emit an event to both users to indicate a match has been found
-                io.to(user1).emit("matchFound", { opponent: user2 });
-                io.to(user2).emit("matchFound", { opponent: user1 });
+                await roomsCollection.doc(roomCode).update({ players: players });
+            }
 
-                console.log("Match found between", user1, "and", user2);
+            const currentRoomData = (await roomsCollection.doc(roomCode).get()).data();
+
+            if (currentRoomData.players.length === 2) {
+                const currentPlayer = currentRoomData.players[currentRoomData.turns];
+                const anotherPlayer = currentRoomData.players[currentRoomData.turns === 0 ? 1 : 0];
+                roomsCollection.doc(roomCode).update({ gameStarted: true });
+                // io.to(roomCode).emit('gameStart', currentPlayer, anotherPlayer);
+                io.to(roomCode).emit('gameStart', {
+                    currentPlayer: currentPlayer, anotherPlayer: anotherPlayer,
+                    role: currentPlayer.role
+                });
+            }
+        } catch (error) {
+            console.error('Error joining room:', error);
+        }
+    });
+
+    socket.on('chatMessage', ({ roomCode, name, message }) => {
+        io.to(roomCode).emit('receivedMessage', { name, message });
+    });
+
+    socket.on('playerMove', async ({ roomCode, newBoard, pieceSizes }) => {
+        const roomDoc = (await roomsCollection.doc(roomCode).get()).data();
+        if (roomDoc.exists) return;
+        await roomsCollection.doc(roomCode).update({ squares: newBoard })
+        await roomsCollection.doc(roomCode).update({ turns: roomDoc.turns === 0 ? 1 : 0 });
+        await roomsCollection.doc(roomCode).update({ pieceSizes: pieceSizes });
+        const updatedRoomDoc = (await roomsCollection.doc(roomCode).get()).data();
+
+        io.to(roomCode).emit('updateBoard', {
+            squares: updatedRoomDoc.squares, nextPlayer: updatedRoomDoc.players[updatedRoomDoc.turns].name,
+            pieceSizes: updatedRoomDoc.pieceSizes, playerTurn: updatedRoomDoc.players[updatedRoomDoc.turns].role
+        });
+    });
+
+    socket.on('disconnect', async () => {
+        console.log(`Socket disconnected: ${socket.id}`);
+        for (const roomCode in rooms) {
+            rooms[roomCode].players = rooms[roomCode].players.filter((player) => player.id !== socket.id);
+
+            if (rooms[roomCode].players.length === 0) {
+                await roomsCollection.doc(roomCode).delete();
+                delete rooms[roomCode];
             }
         }
     });
 });
 
-const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
