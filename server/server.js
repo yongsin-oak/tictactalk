@@ -56,7 +56,6 @@ io.on('connection', (socket) => {
     socket.on('joinRoom', async ({ name, roomCode, user }) => {
         socket.join(roomCode);
         try {
-            console.log(user.email);
             const roomDoc = await roomsCollection.doc(roomCode).get();
 
             if (!roomDoc.exists) {
@@ -67,8 +66,6 @@ io.on('connection', (socket) => {
                 }
                 rooms[roomCode] = {
                     players: [{ name: name, id: socket.id }],
-                    board: Array(9).fill(null),
-                    currentPlayerIndex: 0,
                 };
                 // Room doesn't exist, create a new one
                 await roomsCollection.doc(roomCode).set({
@@ -77,12 +74,16 @@ io.on('connection', (socket) => {
                     squares: Array(9).fill(""),
                     pieceSizes: Array(9).fill(-1),
                     gameStarted: false,
+                    winner: null,
+                    xAvailableSizes: [3, 3, 3],
+                    oAvailableSizes: [3, 3, 3],
                 });
             } else {
-                rooms[roomCode].players.push({ name: name, id: socket.id });
-                console.log(rooms[roomCode].players)
                 const players = roomDoc.data().players;
                 const currentRoomData = (await roomsCollection.doc(roomCode).get()).data();
+                if (currentRoomData.players.length === 1 && players[0].id === user.uid){
+                    return;
+                }
                 if (currentRoomData.players.length === 2) {
                     if (players[0].id === user.uid || players[1].id === user.uid) {
                         const currentPlayer = currentRoomData.players[currentRoomData.turns];
@@ -90,18 +91,22 @@ io.on('connection', (socket) => {
                         // io.to(roomCode).emit('gameStart', currentPlayer, anotherPlayer);
                         io.to(roomCode).emit('gameStart', {
                             currentPlayer: currentPlayer, anotherPlayer: anotherPlayer,
-                            currentPlayerRole: currentPlayer.role, anotherPlayer : anotherPlayer.role,
                         });
                         io.to(roomCode).emit('updateBoard', {
                             squares: currentRoomData.squares, nextPlayer: currentRoomData.players[currentRoomData.turns].name,
-                            pieceSizes: currentRoomData.pieceSizes, playerTurn: currentRoomData.players[currentRoomData.turns].role
+                            pieceSizes: currentRoomData.pieceSizes, playerTurn: currentRoomData.players[currentRoomData.turns].role,
+                            xAvailableSizes: currentRoomData.xAvailableSizes, oAvailableSizes: currentRoomData.oAvailableSizes,
                         });
                     }
                     return;
                 }
+                rooms[roomCode].players.push({ name: name, id: socket.id });
+
                 players.push({ name: name, id: user.uid, role: players[0].role === "x" ? "o" : "x" });
 
                 await roomsCollection.doc(roomCode).update({ players: players });
+
+                console.log(rooms[roomCode].players)
             }
 
             const currentRoomData = (await roomsCollection.doc(roomCode).get()).data();
@@ -113,7 +118,6 @@ io.on('connection', (socket) => {
                 // io.to(roomCode).emit('gameStart', currentPlayer, anotherPlayer);
                 io.to(roomCode).emit('gameStart', {
                     currentPlayer: currentPlayer, anotherPlayer: anotherPlayer,
-                    role: currentPlayer.role
                 });
             }
         } catch (error) {
@@ -125,18 +129,24 @@ io.on('connection', (socket) => {
         io.to(roomCode).emit('receivedMessage', { name, message });
     });
 
-    socket.on('playerMove', async ({ roomCode, newBoard, pieceSizes }) => {
+    socket.on('playerMove', async ({ roomCode, newBoard, pieceSizes, winner, xAvailableSizes, oAvailableSizes }) => {
         const roomDoc = (await roomsCollection.doc(roomCode).get()).data();
         if (roomDoc.exists) return;
         await roomsCollection.doc(roomCode).update({ squares: newBoard })
         await roomsCollection.doc(roomCode).update({ turns: roomDoc.turns === 0 ? 1 : 0 });
         await roomsCollection.doc(roomCode).update({ pieceSizes: pieceSizes });
+        await roomsCollection.doc(roomCode).update({ winner: winner });
+        await roomsCollection.doc(roomCode).update({ xAvailableSizes: xAvailableSizes });
+        await roomsCollection.doc(roomCode).update({ oAvailableSizes: oAvailableSizes });
         const updatedRoomDoc = (await roomsCollection.doc(roomCode).get()).data();
 
         io.to(roomCode).emit('updateBoard', {
             squares: updatedRoomDoc.squares, nextPlayer: updatedRoomDoc.players[updatedRoomDoc.turns].name,
-            pieceSizes: updatedRoomDoc.pieceSizes, playerTurn: updatedRoomDoc.players[updatedRoomDoc.turns].role
+            pieceSizes: updatedRoomDoc.pieceSizes, playerTurn: updatedRoomDoc.players[updatedRoomDoc.turns].role,
+            winner: updatedRoomDoc.winner, xAvailableSizes: updatedRoomDoc.xAvailableSizes,
+            oAvailableSizes: updatedRoomDoc.oAvailableSizes,
         });
+        console.log(updatedRoomDoc.xAvailableSizes);
     });
 
     socket.on('disconnect', async () => {

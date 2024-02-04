@@ -28,7 +28,6 @@ function Tictactoe() {
     const [isGameStarted, setIsGameStarted] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [player2Name, setPlayer2Name] = useState("");
-    const [gameResult, setGameResult] = useState(null);
     const location = useLocation();
     const { name, roomCode } = queryString.parse(location.search);
     const { user } = useUserAuth();
@@ -52,23 +51,24 @@ function Tictactoe() {
     }, []);
     useEffect(() => {
         if (!socket) return;
-        socket.emit('joinRoom', { name, roomCode, user});
-        socket.on('gameStart', ({currentPlayer, anotherPlayer, currentPlayerRole, anotherPlayerRole}) => {
+        socket.emit('joinRoom', { name, roomCode, user });
+        socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
             setRole(currentPlayer.name === name ? currentPlayer.role : anotherPlayer.role);
             setIsMyTurn(currentPlayer.name === name);
-            setPlayer2Name(currentPlayer.name === name ?  anotherPlayer.name : currentPlayer.name);
+            setPlayer2Name(currentPlayer.name === name ? anotherPlayer.name : currentPlayer.name);
             setIsGameStarted(true);
         });
 
-        socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn }) => {
+        socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
             setTurn(playerTurn);
             setSizeSquares(pieceSizes);
             setSquares(squares);
+            if (winner) {
+                setWinner(winner);
+            }
             setIsMyTurn(nextPlayer === name ? true : false);
-        });
-        socket.on('gameOver', (result) => {
-            setGameResult(result);
-            setIsGameStarted(false);
+            setXAvailableSize(xAvailableSizes);
+            setOAvailableSize(oAvailableSizes);
         });
 
     }, [socket, name, roomCode]);
@@ -135,19 +135,19 @@ function Tictactoe() {
         const pieceSizes = sizeSquares;
         newBoard[ind] = turn;
         setIsMyTurn(false);
-        socket.emit('playerMove', { roomCode, newBoard, pieceSizes });
+
+        const W = checkEndTheGame() ? "x | o" : checkWinner();
 
         setTurn(turn === "x" ? "o" : "x");
 
         if (sizeAvailables[size] < 1)
             setSize(getMaxSelectableSize(turn === "x" ? xAvailableSizes : oAvailableSizes))
-        const W = checkWinner();
-        if (W) setWinner(W);
-        else if (checkEndTheGame()) setWinner("x | o");
+
+        socket.emit('playerMove', {
+            roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes, winner: W,
+            xAvailableSizes: xAvailableSizes, oAvailableSizes: oAvailableSizes
+        });
     };
-    const toAlert = () => {
-        alert(xAvailableSizes)
-    }
 
     const getMaxSelectableSize = (availableSize) => {
         for (let index = availableSize.length - 1; index > -1; index--) {
@@ -160,10 +160,13 @@ function Tictactoe() {
 
     const resetGame = () => {
         setSquares(Array(9).fill(""));
-        setTurn("x");
-        setWinner(null);
+        setSizeSquares(Array(9).fill(-1));
         setXAvailableSize([3, 3, 3]);
         setOAvailableSize([3, 3, 3]);
+        const newBoard = Array(9).fill("");
+        const pieceSizes = Array(9).fill(-1);
+        console.log(newBoard)
+        socket.emit('playerMove', { roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes, winner: null });
     };
 
 
@@ -173,13 +176,10 @@ function Tictactoe() {
     const getCurrentAvailableSizeX = () => {
         return xAvailableSizes;
     }
-    useEffect(() => {
-        localStorage.setItem('ticTacToeState', JSON.stringify({ squares, sizeSquares, turn, winner, role }));
-    }, [squares, sizeSquares, turn, winner, role]);
 
 
     const renderGameContent = () => {
-        if (!isGameStarted && gameResult === null) {
+        if (!isGameStarted && winner === null) {
             return (
                 <div className='flex flex-col justify-center items-center gap-6'>
                     <h1 className='text-4xl font-bold text-white text-center'>TicTacTalk</h1>
@@ -193,7 +193,7 @@ function Tictactoe() {
             );
         }
 
-        if (isGameStarted && gameResult === null) {
+        if (isGameStarted) {
             return (
                 <div className='grid grid-cols-2 justify-center items-center gap-6'>
                     <div className='flex flex-col justify-center items-center gap-6'>
@@ -202,7 +202,6 @@ function Tictactoe() {
                             <h3 className='text-2xl font-bold text-gray-300'>{name} vs {player2Name}</h3>
                         </div>
                         <div className="tictactoe">
-                            <button onClick={toAlert}></button>
                             <Button resetGame={resetGame} />
                             <div className="game">
                                 {squares.map((_, ind) => (
@@ -376,11 +375,6 @@ function Tictactoe() {
                                 )}
                             </AnimatePresence>
                         </div>
-                        <div>
-                            <p className='text-lg font-semibold text-gray-400'>
-                                Turno de: <span className='text-white font-bold'>{isMyTurn ? name : player2Name}</span>
-                            </p>
-                        </div>
                     </div>
                     <div>
                         chat
@@ -389,17 +383,6 @@ function Tictactoe() {
 
             );
         }
-
-        return (
-            <div className='flex flex-col justify-center items-center gap-6'>
-                <h1 className='text-4xl font-bold text-white text-center'>TicTacToe Game</h1>
-                <h2 className='text-2xl font-bold text-gray-300 text-center'>Resultados</h2>
-                <span className='text-xl font-semibold text-gray-400 text-center'>{gameResult}</span>
-                <Link to='/' className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors w-full text-center'>
-                    Volver al inicio
-                </Link>
-            </div>
-        );
     };
     return (
         <div className="text-center ">
