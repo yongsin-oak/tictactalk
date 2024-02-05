@@ -78,11 +78,12 @@ io.on('connection', (socket) => {
                     winner: null,
                     xAvailableSizes: [3, 3, 3],
                     oAvailableSizes: [3, 3, 3],
+                    message: []
                 });
             } else {
                 const players = roomDoc.data().players;
                 const currentRoomData = (await roomsCollection.doc(roomCode).get()).data();
-                if (currentRoomData.players.length === 1 && players[0].id === user.uid){
+                if (currentRoomData.players.length === 1 && players[0].id === user.uid) {
                     return;
                 }
                 if (currentRoomData.players.length === 2) {
@@ -98,6 +99,8 @@ io.on('connection', (socket) => {
                             pieceSizes: currentRoomData.pieceSizes, playerTurn: currentRoomData.players[currentRoomData.turns].role,
                             xAvailableSizes: currentRoomData.xAvailableSizes, oAvailableSizes: currentRoomData.oAvailableSizes,
                         });
+                        const updatedRoomDoc = (await roomsCollection.doc(roomCode).get()).data().message;
+                        io.emit('chatMessage', updatedRoomDoc);
                     }
                     return;
                 }
@@ -125,8 +128,18 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('chatMessage', ({ roomCode, name, message }) => {
-        io.to(roomCode).emit('receivedMessage', { name, message });
+    socket.on('sendMessage', async (message) => {
+        const currentRoomDataMessage = (await roomsCollection.doc(message.roomCode).get()).data().message;
+        // currentRoomDataMessage.push(message);
+        const storeMessage = {message: message.message, sender: message.displayName};
+
+        await currentRoomDataMessage.push(storeMessage);
+
+        await roomsCollection.doc(message.roomCode).update({message: currentRoomDataMessage});
+
+        const updatedRoomDoc = (await roomsCollection.doc(message.roomCode).get()).data().message;
+        console.log(updatedRoomDoc);
+        io.emit('chatMessage', updatedRoomDoc);
     });
 
     socket.on('playerMove', async ({ roomCode, newBoard, pieceSizes, winner, xAvailableSizes, oAvailableSizes }) => {

@@ -6,11 +6,12 @@ import ChooseO from "./ChooseO";
 import ChooseX from "./ChooseX";
 import DrawXO from "./DrawXO";
 import queryString from "query-string";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import Spinner from "./Spinner";
 import { useUserAuth } from "../context/UserAuthContext";
 import { auth } from "../firebase";
+import Chat from "./Chat";
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -375,9 +376,7 @@ function Tictactoe() {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <div>
-                        chat
-                    </div>
+                    <Chat socket={socket} roomCode={roomCode} displayName={user.displayName}></Chat>
                 </div>
 
             );
