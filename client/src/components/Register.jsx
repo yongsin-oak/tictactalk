@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
-import { Link } from 'react-router-dom';
 import { Alert, TextField } from '@mui/material';
 import { useUserAuth } from '../context/UserAuthContext';
 import { motion } from 'framer-motion'; 

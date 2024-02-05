@@ -4,10 +4,9 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
-  updateProfile
 } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { CircularProgress, Stack } from '@mui/material';
 
 const UserAuthContext = createContext();

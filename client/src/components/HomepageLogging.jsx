@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useUserAuth } from '../context/UserAuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Box, Collapse, Stack } from '@mui/material';
+import { Alert, Box, Collapse } from '@mui/material';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { Edit } from '@mui/icons-material';
-import { onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { updateProfile } from 'firebase/auth';
 import { motion } from 'framer-motion';
 import { io } from 'socket.io-client';
 
 function HomepageLogging() {
-    const [errorMessage, setErrorMessage] = useState('');
     const [roomCode, setRoomCode] = useState('');
-    const [showAlert, setShowAlert] = useState(false);
     const { logOut, user } = useUserAuth();
     const navigate = useNavigate();
     const [iserror, setIsError] = useState(false);
@@ -120,11 +117,11 @@ function HomepageLogging() {
         navigate(`/roomgame?&roomCode=${encodeURIComponent(newRoomCode)}`);
     };
     const handleJoinRoom = () => {
-        if (roomCode.length === 0) {
-            setErrorMessage('RoomCode?');
-            setShowAlert(true);
-            return;
-        }
+        // if (roomCode.length === 0) {
+        //     setErrorMessage('RoomCode?');
+        //     setShowAlert(true);
+        //     return;
+        // }
 
         /* The above code is using JavaScript to navigate to a specific URL. It is using template literals
         to construct the URL with the values of the `name` and `roomCode` variables. The

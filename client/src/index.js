@@ -6,7 +6,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { UserAuthContextProvider } from './context/UserAuthContext.jsx';
 import App from './App.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
-import ProtectedRouteUser from './auth/protectedRouteUser.jsx';
 import Tictactoe from './components/tictactoe.jsx';
 
 

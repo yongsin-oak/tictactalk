@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useUserAuth } from './context/UserAuthContext';
 import HomePage from './components/HomePage';
 import HomepageLogging from './components/HomepageLogging';
-import io from 'socket.io-client';
 import './App.css';
 
 const App = () => {
