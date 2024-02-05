@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
-const Chat = ({ socket, roomCode, displayName }) => {
+const Chat = ({ socket, roomCode, user }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
+    const [anotherPlayer, setAnotherPlayer] = useState('');
 
     useEffect(() => {
         // Listen for incoming messages from the server
         socket.on('chatMessage', (message) => {
-            console.log(message);
             setMessages(message);
             // setMessages((prevMessages) => [...prevMessages, message]);
         });
@@ -20,14 +21,30 @@ const Chat = ({ socket, roomCode, displayName }) => {
 
     const sendMessage = () => {
         if (newMessage.trim() !== '') {
-            // Emit a new message to the server
-            socket.emit('sendMessage', { message: newMessage, roomCode: roomCode, displayName: displayName });
-
-            // Clear the input field
+            socket.emit('sendMessage', { message: newMessage, roomCode: roomCode, displayName: user.displayName });
             setNewMessage('');
+            socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: false });
         }
     };
+    const handleChange = (e) => {
+        setNewMessage(e.target.value);
+        socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: true });
+        console.log(e.target.value);
+        if (e.target.value === ''){
+            socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: false });
+        }
+        
+        setTimeout(() => {
+            socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: false });
+        }, 7000);
+    }
 
+    socket.on('typing', ({ roomCode: receivedRoomCode, isTyping, displayName }) => {
+        if (receivedRoomCode === roomCode) {
+            setAnotherPlayer(displayName);
+            setIsTyping(isTyping);
+        }
+    });
     return (
         <div className='text-start'>
             <div>
@@ -35,11 +52,12 @@ const Chat = ({ socket, roomCode, displayName }) => {
                     <p key={index}>{message.sender} : {message.message}</p>
                 ))}
             </div>
+            {isTyping && <p>{anotherPlayer} is typing...</p>}
             <div>
                 <input
                     type="text"
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={handleChange}
                 />
                 <button onClick={sendMessage}>Send</button>
             </div>

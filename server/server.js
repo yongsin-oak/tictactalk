@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
                             xAvailableSizes: currentRoomData.xAvailableSizes, oAvailableSizes: currentRoomData.oAvailableSizes,
                         });
                         const updatedRoomDoc = (await roomsCollection.doc(roomCode).get()).data().message;
-                        io.emit('chatMessage', updatedRoomDoc);
+                        io.to(roomCode).emit('chatMessage', updatedRoomDoc);
                     }
                     return;
                 }
@@ -131,15 +131,19 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', async (message) => {
         const currentRoomDataMessage = (await roomsCollection.doc(message.roomCode).get()).data().message;
         // currentRoomDataMessage.push(message);
-        const storeMessage = {message: message.message, sender: message.displayName};
+        const storeMessage = { message: message.message, sender: message.displayName };
 
         await currentRoomDataMessage.push(storeMessage);
 
-        await roomsCollection.doc(message.roomCode).update({message: currentRoomDataMessage});
+        await roomsCollection.doc(message.roomCode).update({ message: currentRoomDataMessage });
 
         const updatedRoomDoc = (await roomsCollection.doc(message.roomCode).get()).data().message;
-        console.log(updatedRoomDoc);
-        io.emit('chatMessage', updatedRoomDoc);
+        io.to(message.roomCode).emit('chatMessage', updatedRoomDoc);
+    });
+
+    socket.on('typing', ({ roomCode, displayName, isTyping }) => {
+        // socket.broadcast.emit('typing', { isTyping });
+        socket.to(roomCode).emit('typing', { roomCode, isTyping, displayName });
     });
 
     socket.on('playerMove', async ({ roomCode, newBoard, pieceSizes, winner, xAvailableSizes, oAvailableSizes }) => {

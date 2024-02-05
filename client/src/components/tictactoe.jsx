@@ -35,7 +35,6 @@ function Tictactoe() {
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
 
-
     useEffect(() => {
         if (socket) {
             return; // Avoid creating a new socket if one is already present
@@ -70,9 +69,7 @@ function Tictactoe() {
             setTurn(playerTurn);
             setSizeSquares(pieceSizes);
             setSquares(squares);
-            if (winner) {
-                setWinner(winner);
-            }
+            setWinner(winner);
             setIsMyTurn(nextPlayer === user.displayName ? true : false);
             setXAvailableSize(xAvailableSizes);
             setOAvailableSize(oAvailableSizes);
@@ -170,10 +167,13 @@ function Tictactoe() {
         setSizeSquares(Array(9).fill(-1));
         setXAvailableSize([3, 3, 3]);
         setOAvailableSize([3, 3, 3]);
+        setWinner(null);
         const newBoard = Array(9).fill("");
         const pieceSizes = Array(9).fill(-1);
-        console.log(newBoard)
-        socket.emit('playerMove', { roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes, winner: null });
+        socket.emit('playerMove', {
+            roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes,
+            winner: null, xAvailableSizes: [3, 3, 3], oAvailableSizes: [3, 3, 3]
+        });
     };
 
 
@@ -376,7 +376,7 @@ function Tictactoe() {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <Chat socket={socket} roomCode={roomCode} displayName={user.displayName}></Chat>
+                    <Chat socket={socket} roomCode={roomCode} user={user}></Chat>
                 </div>
 
             );

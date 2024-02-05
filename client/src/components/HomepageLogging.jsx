@@ -106,10 +106,10 @@ function HomepageLogging() {
     // };
 
     function generateRoomCode() {
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let roomCode = "";
 
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 5; i++) {
             roomCode += letters[Math.floor(Math.random() * letters.length)];
         }
 
