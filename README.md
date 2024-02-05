@@ -7,13 +7,19 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 In the project directory, you can run:
 
 ### `cd client`
+change directory to client first
 
 ### `npm install`
+run npm install in client directory first
 
-run npm install first
+### `cd server`
+then open another terminal and change directory to server
+
+### `npm install`
+run npm install in server directory
 
 ### `npm start`
-
+run npm start on both directory (server directory and client directory)
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 

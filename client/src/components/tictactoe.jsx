@@ -10,6 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import Spinner from "./Spinner";
 import { useUserAuth } from "../context/UserAuthContext";
+import { auth } from "../firebase";
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -29,11 +30,15 @@ function Tictactoe() {
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [player2Name, setPlayer2Name] = useState("");
     const location = useLocation();
-    const { name, roomCode } = queryString.parse(location.search);
+    const { roomCode } = queryString.parse(location.search);
     const { user } = useUserAuth();
+    const uid = auth.currentUser?.uid;
 
 
     useEffect(() => {
+        if (socket) {
+            return; // Avoid creating a new socket if one is already present
+        }
         const newSocket = io('http://127.0.0.1:3001', {
             transports: ['websocket'],
             autoConnect: true,
@@ -51,11 +56,12 @@ function Tictactoe() {
     }, []);
     useEffect(() => {
         if (!socket) return;
-        socket.emit('joinRoom', { name, roomCode, user });
+        socket.emit('authenticate', ({ token: uid }))
+        socket.emit('joinRoom', { roomCode, user });
         socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
-            setRole(currentPlayer.name === name ? currentPlayer.role : anotherPlayer.role);
-            setIsMyTurn(currentPlayer.name === name);
-            setPlayer2Name(currentPlayer.name === name ? anotherPlayer.name : currentPlayer.name);
+            setRole(currentPlayer.name === user.displayName ? currentPlayer.role : anotherPlayer.role);
+            setIsMyTurn(currentPlayer.name === user.displayName);
+            setPlayer2Name(currentPlayer.name === user.displayName ? anotherPlayer.name : currentPlayer.name);
             setIsGameStarted(true);
         });
 
@@ -66,12 +72,12 @@ function Tictactoe() {
             if (winner) {
                 setWinner(winner);
             }
-            setIsMyTurn(nextPlayer === name ? true : false);
+            setIsMyTurn(nextPlayer === user.displayName ? true : false);
             setXAvailableSize(xAvailableSizes);
             setOAvailableSize(oAvailableSizes);
         });
 
-    }, [socket, name, roomCode]);
+    }, [socket, roomCode, user]);
 
 
     const checkEndTheGame = () => {
@@ -199,7 +205,7 @@ function Tictactoe() {
                     <div className='flex flex-col justify-center items-center gap-6'>
                         <div className='flex flex-col justify-center items-center gap-4 mb-4'>
                             <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
-                            <h3 className='text-2xl font-bold text-gray-300'>{name} vs {player2Name}</h3>
+                            <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3>
                         </div>
                         <div className="tictactoe">
                             <Button resetGame={resetGame} />
@@ -256,44 +262,37 @@ function Tictactoe() {
                                     />
                                 </motion.svg>
                             </div>
-
                             <div className='grid grid-cols-3 gap-1 my-2'>
                                 {
                                     [
                                         [0, 1, 2].map((valueSize, ind) => {
                                             if (xAvailableSizes[valueSize] < 1) return undefined;
-                                            return <div key={ind} className={"sizeBtn square " + (xSize === valueSize ? "enableSizeBtn" : "")}>
-                                                <ChooseX
-                                                    clsName={turn}
-                                                    ind={ind}
-                                                    updateSquares={(idx) => {
-                                                        let setSizeAvailables = setXSize;
-                                                        setSizeAvailables(valueSize);
-                                                    }}
-                                                    size={valueSize}
-                                                    customText={getCurrentAvailableSizeX()[valueSize]}
-                                                />
-                                            </div>
-                                        })
-                                    ]
-                                }
-                            </div>
-                            <div className='grid grid-cols-3 gap-1 my-2'>
-                                {
-                                    [
-                                        [0, 1, 2].map((valueSize2, ind) => {
-                                            if (oAvailableSizes[valueSize2] < 1) return undefined;
-                                            return <div key={ind} className={"sizeBtn square " + (oSize === valueSize2 ? "enableSizeBtn" : "")}>
-                                                <ChooseO
-                                                    clsName={turn}
-                                                    updateSquares={(idx) => {
-                                                        let setSizeAvailables = setOSize;
-                                                        setSizeAvailables(valueSize2)
-                                                    }}
-                                                    size={valueSize2}
-                                                    customText={getCurrentAvailableSize()[valueSize2]}
-                                                />
-                                            </div>
+                                            if (role === 'x') {
+                                                return <div key={ind} className={"sizeBtn square " + (xSize === valueSize ? "enableSizeBtn" : "")}>
+                                                    <ChooseX
+                                                        clsName={turn}
+                                                        ind={ind}
+                                                        updateSquares={(idx) => {
+                                                            let setSizeAvailables = setXSize;
+                                                            setSizeAvailables(valueSize);
+                                                        }}
+                                                        size={valueSize}
+                                                        customText={getCurrentAvailableSizeX()[valueSize]}
+                                                    />
+                                                </div>
+                                            } else {
+                                                return <div key={ind} className={"sizeBtn square " + (oSize === valueSize ? "enableSizeBtn" : "")}>
+                                                    <ChooseO
+                                                        clsName={turn}
+                                                        updateSquares={(idx) => {
+                                                            let setSizeAvailables = setOSize;
+                                                            setSizeAvailables(valueSize)
+                                                        }}
+                                                        size={valueSize}
+                                                        customText={getCurrentAvailableSize()[valueSize]}
+                                                    />
+                                                </div>
+                                            }
                                         })
                                     ]
                                 }

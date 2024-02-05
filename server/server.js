@@ -49,11 +49,12 @@ const rooms = {};
 const roomsCollection = firestore.collection('rooms');
 io.on('connection', (socket) => {
     console.log(`Socket connected: ${socket.id}`);
-    // socket.on('getAuth', (user) => {
-    //     console.log(user.user.uid);
-    // })
 
-    socket.on('joinRoom', async ({ name, roomCode, user }) => {
+    socket.on('authenticate', ({ token }) => {
+        console.log(`token: ${token}`)
+    })
+
+    socket.on('joinRoom', async ({ roomCode, user }) => {
         socket.join(roomCode);
         try {
             const roomDoc = await roomsCollection.doc(roomCode).get();
@@ -65,11 +66,11 @@ io.on('connection', (socket) => {
                     role += roles[Math.floor(Math.random() * 2)];
                 }
                 rooms[roomCode] = {
-                    players: [{ name: name, id: socket.id }],
+                    players: [{ name: user.displayName, id: socket.id }],
                 };
                 // Room doesn't exist, create a new one
                 await roomsCollection.doc(roomCode).set({
-                    players: [{ name: name, id: user.uid, role: role }],
+                    players: [{ name: user.displayName, id: user.uid, role: role }],
                     turns: role === 'x' ? 0 : 1,
                     squares: Array(9).fill(""),
                     pieceSizes: Array(9).fill(-1),
@@ -100,13 +101,12 @@ io.on('connection', (socket) => {
                     }
                     return;
                 }
-                rooms[roomCode].players.push({ name: name, id: socket.id });
+                rooms[roomCode].players.push({ name: user.displayName, id: socket.id });
 
-                players.push({ name: name, id: user.uid, role: players[0].role === "x" ? "o" : "x" });
+                players.push({ name: user.displayName, id: user.uid, role: players[0].role === "x" ? "o" : "x" });
 
                 await roomsCollection.doc(roomCode).update({ players: players });
 
-                console.log(rooms[roomCode].players)
             }
 
             const currentRoomData = (await roomsCollection.doc(roomCode).get()).data();
@@ -146,7 +146,6 @@ io.on('connection', (socket) => {
             winner: updatedRoomDoc.winner, xAvailableSizes: updatedRoomDoc.xAvailableSizes,
             oAvailableSizes: updatedRoomDoc.oAvailableSizes,
         });
-        console.log(updatedRoomDoc.xAvailableSizes);
     });
 
     socket.on('disconnect', async () => {

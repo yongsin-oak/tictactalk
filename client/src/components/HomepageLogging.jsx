@@ -25,30 +25,31 @@ function HomepageLogging() {
     });
 
     useEffect(() => {
-        const socket = io('http://127.0.0.1:3001', {
+        if (socket) {
+            return; // Avoid creating a new socket if one is already present
+        }
+        const newSocket = io('http://127.0.0.1:3001', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {
                 origin: '*',
             },
         });
-        setSocket(socket);
+        setSocket(newSocket);
 
         return () => {
-            if (socket) {
-                socket.close();
+            if (newSocket) {
+                newSocket.close();
             }
         };
     }, []);
     useEffect(() => {
-        // Update form values when user changes (e.g., on login)
         setUserName({
             displayName: user.displayName,
         });
     }, [user]);
 
     useEffect(() => {
-        // Update form values when user changes (e.g., on login)
         if (!socket) return;
     }, [socket]);
 
@@ -108,9 +109,6 @@ function HomepageLogging() {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let roomCode = "";
 
-        /* The above code is generating a random string of characters by looping through a set of letters
-        and appending a randomly selected letter to the "roomCode" variable. The loop will run 7 times,
-        generating a 7-character random string. */
         for (let i = 0; i < 7; i++) {
             roomCode += letters[Math.floor(Math.random() * letters.length)];
         }
@@ -119,7 +117,7 @@ function HomepageLogging() {
     }
     const handleCreateRoom = () => {
         const newRoomCode = generateRoomCode();
-        navigate(`/roomgame?name=${encodeURIComponent(username.displayName)}&roomCode=${encodeURIComponent(newRoomCode)}`);
+        navigate(`/roomgame?&roomCode=${encodeURIComponent(newRoomCode)}`);
     };
     const handleJoinRoom = () => {
         if (roomCode.length === 0) {
@@ -132,7 +130,7 @@ function HomepageLogging() {
         to construct the URL with the values of the `name` and `roomCode` variables. The
         `encodeURIComponent` function is used to encode the values in case they contain special
         characters that could break the URL. */
-        navigate(`/roomgame?name=${encodeURIComponent(username.displayName)}&roomCode=${encodeURIComponent(roomCode)}`);
+        navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode)}`);
     };
     const handleRoomCodeChange = (event) => {
         setRoomCode(event.target.value);
