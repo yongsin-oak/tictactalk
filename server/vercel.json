@@ -1,15 +1,10 @@
 {
-    "version": 1,
-    "build": [
-        {
-            "src": "/client/src/App.jsx",
-            "use": "@now/node"
-        }
+    "version": 2,
+    "builds": [
+      { "src": "/client/public/**", "use": "@now/static" }
     ],
-    "routes":[
-        {
-            "src": "/(.*)",
-            "dest": "/client/src/App.jsx"
-        }
+    "routes": [
+      { "src": "/(.*)", "dest": "/client/public/$1" }
     ]
-}
+  }
+  
