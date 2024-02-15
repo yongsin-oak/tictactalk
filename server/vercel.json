@@ -1,10 +1,10 @@
 {
     "version": 2,
     "builds": [
-      { "src": "/client/public/**", "use": "@now/static" }
+      { "src": "/client/**", "use": "@now/static" }
     ],
     "routes": [
-      { "src": "/(.*)", "dest": "/client/public/$1" }
+      { "src": "/(.*)", "dest": "/client/$1" }
     ]
   }
   
