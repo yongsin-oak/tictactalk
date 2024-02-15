@@ -6,7 +6,7 @@ const socketio = require('socket.io');
 const cors = require('cors');
 const app = express();
 
-const whitelist = ["https://tictactalk.vercel.app/"];
+const whitelist = ["https://tictactalk-e6rp.vercel.app/", "https://tictactalk-e6rp.vercel.app/"];
 
 const admin = require('firebase-admin');
 
@@ -33,7 +33,7 @@ app.use(cors(corsOptions));
 const server = http.createServer(app);
 const io = socketio(server, {
     cors: {
-        origin: "https://tictactalk.vercel.app/",
+        origin: "https://tictactalk-e6rp.vercel.app/",
         methods: ["GET", "POST"],
         credentials: true
     }
