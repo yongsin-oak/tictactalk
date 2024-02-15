@@ -39,7 +39,7 @@ function Tictactoe() {
         if (socket) {
             return; // Avoid creating a new socket if one is already present
         }
-        const newSocket = io('https://tictactalk.vercel.app/', {
+        const newSocket = io('http://127.0.0.1:3001', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {

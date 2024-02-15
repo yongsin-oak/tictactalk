@@ -25,7 +25,7 @@ function HomepageLogging() {
         if (socket) {
             return; // Avoid creating a new socket if one is already present
         }
-        const newSocket = io('https://tictactalk.vercel.app/', {
+        const newSocket = io('http://127.0.0.1:3001', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {
@@ -54,7 +54,6 @@ function HomepageLogging() {
         e.preventDefault();
 
         if (!username.displayName.trim()) {
-            // Display an error alert if the username is blank
             setIsError(true);
             setError("Username cannot be blank");
             setOpen(true);
