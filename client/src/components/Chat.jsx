@@ -29,7 +29,6 @@ const Chat = ({ socket, roomCode, user }) => {
     const handleChange = (e) => {
         setNewMessage(e.target.value);
         socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: true });
-        console.log(e.target.value);
         if (e.target.value === ''){
             socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: false });
         }
