@@ -96,38 +96,6 @@ function Tictactoe() {
         console.log(docSnap.data());
     }
 
-    //     return () => unsubscribe();
-    // }, [roomsDocRef]);
-
-    // const setData = (data) => {
-    //     console.log(data.roleSet)
-    //     setRole(data.roleSet)
-    //     if(data.isGameStarted){
-    //         setIsGameStarted(data.isGameStartedSett);
-    //     }
-    //     console.log(data)
-    // }
-    // useEffect(() => {
-    //     socket.emit('joinRoom', { roomCode, user });
-    //     socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
-    //         setRole(currentPlayer.name === user.displayName ? currentPlayer.role : anotherPlayer.role);
-    //         setIsMyTurn(currentPlayer.name === user.displayName);
-    //         setPlayer2Name(currentPlayer.name === user.displayName ? anotherPlayer.name : currentPlayer.name);
-    //         setIsGameStarted(true);
-    //     });
-
-    //     socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
-    //         setTurn(playerTurn);
-    //         setSizeSquares(pieceSizes);
-    //         setSquares(squares);
-    //         setWinner(winner);
-    //         setIsMyTurn(nextPlayer === user.displayName ? true : false);
-    //         setXAvailableSize(xAvailableSizes);
-    //         setOAvailableSize(oAvailableSizes);
-    //     });
-
-    // }, [socket, roomCode, user]);
-
 
     const checkEndTheGame = () => {
         for (let square of squares) {
@@ -207,10 +175,6 @@ function Tictactoe() {
             xAvailableSizes: xAvailableSizes,
             oAvailableSizes: oAvailableSizes
         })
-        // socket.emit('playerMove', {
-        //     roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes, winner: W,
-        //     xAvailableSizes: xAvailableSizes, oAvailableSizes: oAvailableSizes
-        // });
     };
 
     const getMaxSelectableSize = (availableSize) => {
@@ -222,14 +186,22 @@ function Tictactoe() {
         return -1;
     }
 
-    const resetGame = () => {
-        setSquares(Array(9).fill(""));
-        setSizeSquares(Array(9).fill(-1));
-        setXAvailableSize([3, 3, 3]);
-        setOAvailableSize([3, 3, 3]);
-        setWinner(null);
+    const resetGame = async () => {
+        // setSquares(Array(9).fill(""));
+        // setSizeSquares(Array(9).fill(-1));
+        // setXAvailableSize([3, 3, 3]);
+        // setOAvailableSize([3, 3, 3]);
+        // setWinner(null);
         const newBoard = Array(9).fill("");
         const pieceSizes = Array(9).fill(-1);
+        const docSnap = await getDoc(roomsDocRef);
+        updateDoc(roomsDocRef, {
+            squares: newBoard,
+            pieceSizes: pieceSizes,
+            winner: null,
+            xAvailableSizes: xAvailableSizes,
+            oAvailableSizes: oAvailableSizes,
+        })
         // socket.emit('playerMove', {
         //     roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes,
         //     winner: null, xAvailableSizes: [3, 3, 3], oAvailableSizes: [3, 3, 3]
