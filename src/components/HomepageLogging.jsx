@@ -7,7 +7,6 @@ import { auth, db } from '../firebase';
 import { Edit } from '@mui/icons-material';
 import { updateProfile } from 'firebase/auth';
 import { motion } from 'framer-motion';
-import { io } from 'socket.io-client';
 
 function HomepageLogging() {
     const [roomCode, setRoomCode] = useState('');
@@ -16,39 +15,14 @@ function HomepageLogging() {
     const [iserror, setIsError] = useState(false);
     const [error, setError] = useState("");
     const [open, setOpen] = useState(true);
-    const [socket, setSocket] = useState(null);
     const [username, setUserName] = useState({
         displayName: user.displayName,
     });
-
-    useEffect(() => {
-        if (socket) {
-            return; // Avoid creating a new socket if one is already present
-        }
-        const newSocket = io('http://127.0.0.1:3001', {
-            transports: ['websocket'],
-            autoConnect: true,
-            cors: {
-                origin: '*',
-            },
-        });
-        setSocket(newSocket);
-
-        return () => {
-            if (newSocket) {
-                newSocket.close();
-            }
-        };
-    }, []);
     useEffect(() => {
         setUserName({
             displayName: user.displayName,
         });
     }, [user]);
-
-    useEffect(() => {
-        if (!socket) return;
-    }, [socket]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -97,9 +71,6 @@ function HomepageLogging() {
             console.log(err.message);
         }
     };
-    // const handleFindMatch = () => {
-    //     socket.emit('findMatch', { userId: user.uid });
-    // };
 
     function generateRoomCode() {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -116,16 +87,6 @@ function HomepageLogging() {
         navigate(`/roomgame?&roomCode=${encodeURIComponent(newRoomCode)}`);
     };
     const handleJoinRoom = () => {
-        // if (roomCode.length === 0) {
-        //     setErrorMessage('RoomCode?');
-        //     setShowAlert(true);
-        //     return;
-        // }
-
-        /* The above code is using JavaScript to navigate to a specific URL. It is using template literals
-        to construct the URL with the values of the `name` and `roomCode` variables. The
-        `encodeURIComponent` function is used to encode the values in case they contain special
-        characters that could break the URL. */
         navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode)}`);
     };
     const handleRoomCodeChange = (event) => {

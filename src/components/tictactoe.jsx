@@ -7,26 +7,24 @@ import ChooseX from "./ChooseX";
 import DrawXO from "./DrawXO";
 import queryString from "query-string";
 import { useLocation } from "react-router-dom";
-import { io } from "socket.io-client";
 import Spinner from "./Spinner";
 import { useUserAuth } from "../context/UserAuthContext";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import Chat from "./Chat";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
     const [sizeSquares, setSizeSquares] = useState(Array(9).fill(-1));
     const [turn, setTurn] = useState("x");
     const [winner, setWinner] = useState(null);
-    const [role, setRole] = useState("x");
+    const [role, setRole] = useState('');
 
     const [xAvailableSizes, setXAvailableSize] = useState([3, 3, 3]);
     const [oAvailableSizes, setOAvailableSize] = useState([3, 3, 3]);
 
     const [xSize, setXSize] = useState(1);
     const [oSize, setOSize] = useState(1);
-
-    const [socket, setSocket] = useState(null);
     const [isGameStarted, setIsGameStarted] = useState(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [player2Name, setPlayer2Name] = useState("");
@@ -34,48 +32,59 @@ function Tictactoe() {
     const { roomCode } = queryString.parse(location.search);
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
+    const roomsDocRef = doc(db, 'rooms', roomCode);
+    const roles = "xo";
 
-    useEffect(() => {
-        if (socket) {
-            return;
-        }
-        const newSocket = io('http://127.0.0.1:3001', {
-            transports: ['websocket'],
-            autoConnect: true,
-            cors: {
-                origin: '*',
-            },
-        });
-        setSocket(newSocket);
-
-        return () => {
-            if (socket) {
-                socket.close();
+    const fetchData = async () => {
+        const docSnapshot = await getDoc(roomsDocRef);
+        if (docSnapshot.exists()) {
+            docSnapshot.data().players.forEach(element => {
+                if (element.id === uid) {
+                    setRole(element.role);
+                }
+            });
+        } else {
+            let randomRole = roles[Math.floor(Math.random() * 2)]
+            const data = {
+                players: [{ name: user.displayName, id: user.uid, role: randomRole }],
+                turns: role === 'x' ? 0 : 1,
+                squares: Array(9).fill(""),
+                pieceSizes: Array(9).fill(-1),
+                gameStarted: false,
+                winner: null,
+                xAvailableSizes: [3, 3, 3],
+                oAvailableSizes: [3, 3, 3],
+                message: []
             }
-        };
-    }, []);
+            setDoc(roomsDocRef, data);
+            console.log("No such document!");
+        }
+    };
     useEffect(() => {
-        if (!socket) return;
-        socket.emit('authenticate', ({ token: uid }))
-        socket.emit('joinRoom', { roomCode, user });
-        socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
-            setRole(currentPlayer.name === user.displayName ? currentPlayer.role : anotherPlayer.role);
-            setIsMyTurn(currentPlayer.name === user.displayName);
-            setPlayer2Name(currentPlayer.name === user.displayName ? anotherPlayer.name : currentPlayer.name);
-            setIsGameStarted(true);
-        });
+        fetchData();
+        console.log(roomsDocRef)
+    }, []);
 
-        socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
-            setTurn(playerTurn);
-            setSizeSquares(pieceSizes);
-            setSquares(squares);
-            setWinner(winner);
-            setIsMyTurn(nextPlayer === user.displayName ? true : false);
-            setXAvailableSize(xAvailableSizes);
-            setOAvailableSize(oAvailableSizes);
-        });
+    // useEffect(() => {
+    //     socket.emit('joinRoom', { roomCode, user });
+    //     socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
+    //         setRole(currentPlayer.name === user.displayName ? currentPlayer.role : anotherPlayer.role);
+    //         setIsMyTurn(currentPlayer.name === user.displayName);
+    //         setPlayer2Name(currentPlayer.name === user.displayName ? anotherPlayer.name : currentPlayer.name);
+    //         setIsGameStarted(true);
+    //     });
 
-    }, [socket, roomCode, user]);
+    //     socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
+    //         setTurn(playerTurn);
+    //         setSizeSquares(pieceSizes);
+    //         setSquares(squares);
+    //         setWinner(winner);
+    //         setIsMyTurn(nextPlayer === user.displayName ? true : false);
+    //         setXAvailableSize(xAvailableSizes);
+    //         setOAvailableSize(oAvailableSizes);
+    //     });
+
+    // }, [socket, roomCode, user]);
 
 
     const checkEndTheGame = () => {
@@ -147,10 +156,10 @@ function Tictactoe() {
         if (sizeAvailables[size] < 1)
             setSize(getMaxSelectableSize(turn === "x" ? xAvailableSizes : oAvailableSizes))
 
-        socket.emit('playerMove', {
-            roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes, winner: W,
-            xAvailableSizes: xAvailableSizes, oAvailableSizes: oAvailableSizes
-        });
+        // socket.emit('playerMove', {
+        //     roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes, winner: W,
+        //     xAvailableSizes: xAvailableSizes, oAvailableSizes: oAvailableSizes
+        // });
     };
 
     const getMaxSelectableSize = (availableSize) => {
@@ -170,10 +179,10 @@ function Tictactoe() {
         setWinner(null);
         const newBoard = Array(9).fill("");
         const pieceSizes = Array(9).fill(-1);
-        socket.emit('playerMove', {
-            roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes,
-            winner: null, xAvailableSizes: [3, 3, 3], oAvailableSizes: [3, 3, 3]
-        });
+        // socket.emit('playerMove', {
+        //     roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes,
+        //     winner: null, xAvailableSizes: [3, 3, 3], oAvailableSizes: [3, 3, 3]
+        // });
     };
 
 
@@ -376,7 +385,7 @@ function Tictactoe() {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <Chat socket={socket} roomCode={roomCode} user={user}></Chat>
+                    <Chat roomCode={roomCode} user={user}></Chat>
                 </div>
 
             );
