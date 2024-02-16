@@ -6,12 +6,12 @@ import ChooseO from "./ChooseO";
 import ChooseX from "./ChooseX";
 import DrawXO from "./DrawXO";
 import queryString from "query-string";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Spinner from "./Spinner";
 import { useUserAuth } from "../context/UserAuthContext";
 import { auth, db } from "../firebase";
 import Chat from "./Chat";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -33,38 +33,80 @@ function Tictactoe() {
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
     const roomsDocRef = doc(db, 'rooms', roomCode);
+
     const roles = "xo";
+    const navigate = useNavigate();
 
     const fetchData = async () => {
-        const docSnapshot = await getDoc(roomsDocRef);
-        if (docSnapshot.exists()) {
-            docSnapshot.data().players.forEach(element => {
-                if (element.id === uid) {
-                    setRole(element.role);
+        const unsubscribe = onSnapshot(roomsDocRef, async (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const players = docSnapshot.data().players;
+                const playerIndex = players.findIndex(player => player.id === uid);
+
+                if (playerIndex === -1) {
+                    if (players.length === 2) {
+                        navigate('/')
+                        return;
+                    }
+                    await updateDoc(roomsDocRef, {
+                        players: arrayUnion({ name: user.displayName, id: uid, role: players[0].role === 'x' ? 'o' : 'x' })
+                    });
+
                 }
-            });
-        } else {
-            let randomRole = roles[Math.floor(Math.random() * 2)]
-            const data = {
-                players: [{ name: user.displayName, id: user.uid, role: randomRole }],
-                turns: role === 'x' ? 0 : 1,
-                squares: Array(9).fill(""),
-                pieceSizes: Array(9).fill(-1),
-                gameStarted: false,
-                winner: null,
-                xAvailableSizes: [3, 3, 3],
-                oAvailableSizes: [3, 3, 3],
-                message: []
+                if (players.length === 2) {
+                    setData()
+                };
+            } else {
+                let randomRole = roles[Math.floor(Math.random() * 2)]
+                const data = {
+                    players: [{ name: user.displayName, id: user.uid, role: randomRole }],
+                    turns: randomRole === 'x' ? 0 : 1,
+                    squares: Array(9).fill(""),
+                    pieceSizes: Array(9).fill(-1),
+                    winner: null,
+                    xAvailableSizes: [3, 3, 3],
+                    oAvailableSizes: [3, 3, 3],
+                    message: []
+                }
+                setDoc(roomsDocRef, data);
+                // setRole(randomRole);
             }
-            setDoc(roomsDocRef, data);
-            console.log("No such document!");
-        }
+        })
+        return () => unsubscribe();
     };
     useEffect(() => {
         fetchData();
         console.log(roomsDocRef)
     }, []);
 
+    const setData = async () => {
+        const docSnap = await getDoc(roomsDocRef);
+        const players = docSnap.data().players;
+        const UpdateplayerIndex = players.findIndex(player => player.id === uid);
+        setIsGameStarted(true)
+        setRole(players[UpdateplayerIndex].role);
+        setTurn(players[docSnap.data().turns].role);
+        setIsMyTurn(players[docSnap.data().turns].id === uid);
+        setSquares(docSnap.data().squares);
+        setSizeSquares(docSnap.data().pieceSizes);
+        setXAvailableSize(docSnap.data().xAvailableSizes);
+        setOAvailableSize(docSnap.data().oAvailableSizes);
+        setPlayer2Name(players[0].id === uid ? players[1].name : players[0].name);
+        setWinner(docSnap.data().winner);
+        console.log(docSnap.data());
+    }
+
+    //     return () => unsubscribe();
+    // }, [roomsDocRef]);
+
+    // const setData = (data) => {
+    //     console.log(data.roleSet)
+    //     setRole(data.roleSet)
+    //     if(data.isGameStarted){
+    //         setIsGameStarted(data.isGameStartedSett);
+    //     }
+    //     console.log(data)
+    // }
     // useEffect(() => {
     //     socket.emit('joinRoom', { roomCode, user });
     //     socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
@@ -128,7 +170,7 @@ function Tictactoe() {
         return false;
     };
 
-    const updateSquares = (ind) => {
+    const updateSquares = async (ind) => {
         if (!canReplace(ind) || winner) return;
         if (isGameStarted && !isMyTurn) return;
         const s = squares;
@@ -153,9 +195,18 @@ function Tictactoe() {
 
         setTurn(turn === "x" ? "o" : "x");
 
-        if (sizeAvailables[size] < 1)
+        if (sizeAvailables[size] < 1) {
             setSize(getMaxSelectableSize(turn === "x" ? xAvailableSizes : oAvailableSizes))
-
+        }
+        const docSnap = await getDoc(roomsDocRef);
+        updateDoc(roomsDocRef, {
+            squares: newBoard,
+            pieceSizes: pieceSizes,
+            turns: docSnap.data().turns === 0 ? 1 : 0,
+            winner: W,
+            xAvailableSizes: xAvailableSizes,
+            oAvailableSizes: oAvailableSizes
+        })
         // socket.emit('playerMove', {
         //     roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes, winner: W,
         //     xAvailableSizes: xAvailableSizes, oAvailableSizes: oAvailableSizes
@@ -193,7 +244,6 @@ function Tictactoe() {
         return xAvailableSizes;
     }
 
-
     const renderGameContent = () => {
         if (!isGameStarted && winner === null) {
             return (
@@ -208,188 +258,184 @@ function Tictactoe() {
                 </div>
             );
         }
-
-        if (isGameStarted) {
-            return (
-                <div className='grid grid-cols-2 justify-center items-center gap-6'>
-                    <div className='flex flex-col justify-center items-center gap-6'>
-                        <div className='flex flex-col justify-center items-center gap-4 mb-4'>
-                            <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
-                            <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3>
+        return (
+            <div className='grid grid-cols-2 justify-center items-center gap-6'>
+                <div className='flex flex-col justify-center items-center gap-6'>
+                    <div className='flex flex-col justify-center items-center gap-4 mb-4'>
+                        <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
+                        <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3>
+                    </div>
+                    <div className="tictactoe">
+                        <Button resetGame={resetGame} />
+                        <div className="game">
+                            {squares.map((_, ind) => (
+                                <DrawXO
+                                    key={ind}
+                                    ind={ind}
+                                    updateSquares={updateSquares}
+                                    clsName={squares[ind]}
+                                    turn={turn}
+                                    size={sizeSquares[ind]}
+                                />
+                            ))}
                         </div>
-                        <div className="tictactoe">
-                            <Button resetGame={resetGame} />
-                            <div className="game">
-                                {squares.map((_, ind) => (
-                                    <DrawXO
-                                        key={ind}
-                                        ind={ind}
-                                        updateSquares={updateSquares}
-                                        clsName={squares[ind]}
-                                        turn={turn}
-                                        size={sizeSquares[ind]}
-                                    />
-                                ))}
-                            </div>
-                            <div className={`turn ${turn === "x" ? "left" : "right"}`}>
-                                <motion.svg
-                                    width="100"
-                                    height="100"
-                                    viewBox="-25 0 200 200"
-                                    initial="hidden"
-                                    animate="visible"
+                        <div className={`turn ${turn === "x" ? "left" : "right"}`}>
+                            <motion.svg
+                                width="100"
+                                height="100"
+                                viewBox="-25 0 200 200"
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <motion.line
+                                    x1="5"
+                                    y1="30"
+                                    x2="145"
+                                    y2="170"
+                                    stroke="#ffff"
+                                    className="draw"
+                                />
+                                <motion.line
+                                    x1="5"
+                                    y1="170"
+                                    x2="145"
+                                    y2="30"
+                                    stroke="#ffff"
+                                    className="draw"
+                                />
+                            </motion.svg>
+                            <motion.svg
+                                width="100"
+                                height="100"
+                                viewBox="-25 0 200 200"
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <motion.circle
+                                    cx="75"
+                                    cy="95"
+                                    r="70"
+                                    stroke="black"
+                                    className="draw"
+                                />
+                            </motion.svg>
+                        </div>
+                        <div className='grid grid-cols-3 gap-1 my-2'>
+                            {
+                                [
+                                    [0, 1, 2].map((valueSize, ind) => {
+                                        if (xAvailableSizes[valueSize] < 1) return undefined;
+                                        if (role === 'x') {
+                                            return <div key={ind} className={"sizeBtn square " + (xSize === valueSize ? "enableSizeBtn" : "")}>
+                                                <ChooseX
+                                                    clsName={turn}
+                                                    ind={ind}
+                                                    updateSquares={(idx) => {
+                                                        let setSizeAvailables = setXSize;
+                                                        setSizeAvailables(valueSize);
+                                                    }}
+                                                    size={valueSize}
+                                                    customText={getCurrentAvailableSizeX()[valueSize]}
+                                                />
+                                            </div>
+                                        } else {
+                                            return <div key={ind} className={"sizeBtn square " + (oSize === valueSize ? "enableSizeBtn" : "")}>
+                                                <ChooseO
+                                                    clsName={turn}
+                                                    updateSquares={(idx) => {
+                                                        let setSizeAvailables = setOSize;
+                                                        setSizeAvailables(valueSize)
+                                                    }}
+                                                    size={valueSize}
+                                                    customText={getCurrentAvailableSize()[valueSize]}
+                                                />
+                                            </div>
+                                        }
+                                    })
+                                ]
+                            }
+                        </div>
+                        <AnimatePresence>
+                            {winner && (
+                                <motion.div
+                                    key={"parent-box"}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="winner"
                                 >
-                                    <motion.line
-                                        x1="5"
-                                        y1="30"
-                                        x2="145"
-                                        y2="170"
-                                        stroke="#ffff"
-                                        className="draw"
-                                    />
-                                    <motion.line
-                                        x1="5"
-                                        y1="170"
-                                        x2="145"
-                                        y2="30"
-                                        stroke="#ffff"
-                                        className="draw"
-                                    />
-                                </motion.svg>
-                                <motion.svg
-                                    width="100"
-                                    height="100"
-                                    viewBox="-25 0 200 200"
-                                    initial="hidden"
-                                    animate="visible"
-                                >
-                                    <motion.circle
-                                        cx="75"
-                                        cy="95"
-                                        r="70"
-                                        stroke="black"
-                                        className="draw"
-                                    />
-                                </motion.svg>
-                            </div>
-                            <div className='grid grid-cols-3 gap-1 my-2'>
-                                {
-                                    [
-                                        [0, 1, 2].map((valueSize, ind) => {
-                                            if (xAvailableSizes[valueSize] < 1) return undefined;
-                                            if (role === 'x') {
-                                                return <div key={ind} className={"sizeBtn square " + (xSize === valueSize ? "enableSizeBtn" : "")}>
+                                    <motion.div
+                                        key={"child-box"}
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        exit={{ scale: 0, opacity: 0 }}
+                                        className="text"
+                                    >
+                                        <motion.h2
+                                            initial={{ scale: 0, y: 100 }}
+                                            animate={{
+                                                scale: 1,
+                                                y: 0,
+                                                transition: {
+                                                    y: { delay: 0.7 },
+                                                    duration: 0.7,
+                                                },
+                                            }}
+                                        >
+                                            {winner === "x | o"
+                                                ? "No Winner :/"
+                                                : "Win !! :)"}
+                                        </motion.h2>
+                                        <motion.div
+                                            initial={{ scale: 0 }}
+                                            animate={{
+                                                scale: 1,
+                                                transition: {
+                                                    delay: 1.3,
+                                                    duration: 0.2,
+                                                },
+                                            }}
+                                            className="win w-fit h-fit"
+                                        >
+                                            {winner === "x | o" ? (
+                                                <>
                                                     <ChooseX
                                                         clsName={turn}
-                                                        ind={ind}
-                                                        updateSquares={(idx) => {
-                                                            let setSizeAvailables = setXSize;
-                                                            setSizeAvailables(valueSize);
-                                                        }}
-                                                        size={valueSize}
-                                                        customText={getCurrentAvailableSizeX()[valueSize]}
+                                                        size={2}
                                                     />
-                                                </div>
-                                            } else {
-                                                return <div key={ind} className={"sizeBtn square " + (oSize === valueSize ? "enableSizeBtn" : "")}>
                                                     <ChooseO
                                                         clsName={turn}
-                                                        updateSquares={(idx) => {
-                                                            let setSizeAvailables = setOSize;
-                                                            setSizeAvailables(valueSize)
-                                                        }}
-                                                        size={valueSize}
-                                                        customText={getCurrentAvailableSize()[valueSize]}
+                                                        size={2}
                                                     />
-                                                </div>
-                                            }
-                                        })
-                                    ]
-                                }
-                            </div>
-                            <AnimatePresence>
-                                {winner && (
-                                    <motion.div
-                                        key={"parent-box"}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="winner"
-                                    >
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <DrawXO
+                                                        updateSquares={updateSquares}
+                                                        clsName={winner}
+                                                        size={1}
+                                                    />
+                                                </>
+                                            )}
+                                        </motion.div>
                                         <motion.div
-                                            key={"child-box"}
                                             initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            exit={{ scale: 0, opacity: 0 }}
-                                            className="text"
+                                            animate={{
+                                                scale: 1,
+                                                transition: { delay: 1.5, duration: 0.3 },
+                                            }}
                                         >
-                                            <motion.h2
-                                                initial={{ scale: 0, y: 100 }}
-                                                animate={{
-                                                    scale: 1,
-                                                    y: 0,
-                                                    transition: {
-                                                        y: { delay: 0.7 },
-                                                        duration: 0.7,
-                                                    },
-                                                }}
-                                            >
-                                                {winner === "x | o"
-                                                    ? "No Winner :/"
-                                                    : "Win !! :)"}
-                                            </motion.h2>
-                                            <motion.div
-                                                initial={{ scale: 0 }}
-                                                animate={{
-                                                    scale: 1,
-                                                    transition: {
-                                                        delay: 1.3,
-                                                        duration: 0.2,
-                                                    },
-                                                }}
-                                                className="win w-fit h-fit"
-                                            >
-                                                {winner === "x | o" ? (
-                                                    <>
-                                                        <ChooseX
-                                                            clsName={turn}
-                                                            size={2}
-                                                        />
-                                                        <ChooseO
-                                                            clsName={turn}
-                                                            size={2}
-                                                        />
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <DrawXO
-                                                            updateSquares={updateSquares}
-                                                            clsName={winner}
-                                                            size={1}
-                                                        />
-                                                    </>
-                                                )}
-                                            </motion.div>
-                                            <motion.div
-                                                initial={{ scale: 0 }}
-                                                animate={{
-                                                    scale: 1,
-                                                    transition: { delay: 1.5, duration: 0.3 },
-                                                }}
-                                            >
-                                                <Button resetGame={resetGame} />
-                                            </motion.div>
+                                            <Button resetGame={resetGame} />
                                         </motion.div>
                                     </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
-                    <Chat roomCode={roomCode} user={user}></Chat>
                 </div>
-
-            );
-        }
+                <Chat roomCode={roomCode} user={user}></Chat>
+            </div>
+        );
     };
     return (
         <div className="text-center ">
