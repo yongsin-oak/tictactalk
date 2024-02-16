@@ -37,7 +37,7 @@ function Tictactoe() {
 
     useEffect(() => {
         if (socket) {
-            return; // Avoid creating a new socket if one is already present
+            return;
         }
         const newSocket = io('http://127.0.0.1:3001', {
             transports: ['websocket'],
