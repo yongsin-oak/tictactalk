@@ -26,17 +26,30 @@ const corsOptions = {
     },
     credentials: true,
 }
+const forceSecure = (req, res, next) => {
+    if (req.secure)
+        return next(); // https -- Continue
+
+    res.redirect('https://' + req.hostname + req.url)
+}
+app.all('*', forceSecure);
 
 app.use(cors(corsOptions));
 const server = http.createServer(app);
 const io = socketio(server, {
     cors: {
-        origin: "https://tictactalk.web.app/", 
+        origin: "https://tictactalk.web.app/",
         methods: ["GET", "POST"],
         credentials: true
     }
 });
 const PORT = process.env.PORT || 8080
+
+app.get('/', (req, res) => {
+    res.write(`<h1>Socket Start Port : ${PORT}</h1>`);
+    res.end();
+})
+
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
