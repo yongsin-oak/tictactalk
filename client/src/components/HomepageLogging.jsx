@@ -25,7 +25,7 @@ function HomepageLogging() {
         if (socket) {
             return; // Avoid creating a new socket if one is already present
         }
-        const newSocket = io('http://127.0.0.1:3001', {
+        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {
