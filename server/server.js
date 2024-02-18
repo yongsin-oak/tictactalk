@@ -1,5 +1,3 @@
-/* These lines of code are importing the necessary modules and setting up the basic configuration for a
-Node.js server using Express, Socket.io, and CORS. */
 const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');

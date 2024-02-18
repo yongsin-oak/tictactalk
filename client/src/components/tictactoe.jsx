@@ -39,7 +39,7 @@ function Tictactoe() {
         if (socket) {
             return;
         }
-        const newSocket = io('https://tictactalk-bkcfz2cb2q-as.a.run.app/', {
+        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {
@@ -55,6 +55,16 @@ function Tictactoe() {
         };
     }, []);
     useEffect(() => {
+        socket.on("connect_error", (err) => {
+            // the reason of the error, for example "xhr poll error"
+            console.log(err.message);
+
+            // some additional description, for example the status code of the initial HTTP response
+            console.log(err.description);
+
+            // some additional context, for example the XMLHttpRequest object
+            console.log(err.context);
+        });
         if (!socket) return;
         socket.emit('authenticate', ({ token: uid }))
         socket.emit('joinRoom', { roomCode, user });
