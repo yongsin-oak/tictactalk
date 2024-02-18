@@ -39,7 +39,7 @@ function Tictactoe() {
         if (socket) {
             return;
         }
-        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
+        const newSocket = io('https://tictactalk-bkcfz2cb2q-as.a.run.app/', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {

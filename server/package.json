@@ -7,8 +7,7 @@
     "socket.io": "^4.7.4"
   },
   "scripts": {
-    "start": "nodemon server.js",
-    "build": "webpack --config webpack.config.js"
+    "start": "nodemon server.js"
   },
   "name": "server",
   "version": "1.0.0",
