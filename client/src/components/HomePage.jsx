@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Auth from './Auth';
+import styles from './Homepage.module.css';
 
 function HomePage() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -22,13 +23,9 @@ function HomePage() {
             {isButtonVisible && (
                 <>
                     <h1 className="text-7xl font-thin mb-6">Tic Tac Talk</h1>
-                    <div className="justify-center gap-2 w-full">
+                    <div className="justify-center gap-2 w-full flex">
                         <button
-                            className={`h-14 w-4/5 
-                                bg-blue-500 hover:bg-blue-400 
-                                text-white font-thin py-2 px-4 border-b-4 
-                                border-blue-700 hover:border-blue-500 rounded
-                                text-2xl focus:outline-none`}
+                            className={styles.loginButton}
                             onClick={() => handleAuthClick(true)}
                         >
                             Login

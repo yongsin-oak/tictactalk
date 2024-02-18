@@ -25,7 +25,14 @@ function HomepageLogging() {
         if (socket) {
             return; // Avoid creating a new socket if one is already present
         }
-        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
+        // const newSocket = io('https://tictactalk.as.r.appspot.com/', {
+        //     transports: ['websocket'],
+        //     autoConnect: true,
+        //     cors: {
+        //         origin: '*',
+        //     },
+        // });
+        const newSocket = io('http://localhost:8080', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {
@@ -116,16 +123,6 @@ function HomepageLogging() {
         navigate(`/roomgame?&roomCode=${encodeURIComponent(newRoomCode)}`);
     };
     const handleJoinRoom = () => {
-        // if (roomCode.length === 0) {
-        //     setErrorMessage('RoomCode?');
-        //     setShowAlert(true);
-        //     return;
-        // }
-
-        /* The above code is using JavaScript to navigate to a specific URL. It is using template literals
-        to construct the URL with the values of the `name` and `roomCode` variables. The
-        `encodeURIComponent` function is used to encode the values in case they contain special
-        characters that could break the URL. */
         navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode)}`);
     };
     const handleRoomCodeChange = (event) => {
