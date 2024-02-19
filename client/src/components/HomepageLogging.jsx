@@ -12,7 +12,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function HomepageLogging() {
     const [roomCode, setRoomCode] = useState('');
-    const { logOut, user } = useUserAuth();
+    const { logOut, user, storage } = useUserAuth();
     const navigate = useNavigate();
     const [iserror, setIsError] = useState(false);
     const [error, setError] = useState("");
@@ -23,7 +23,7 @@ function HomepageLogging() {
     });
 
     const [selectedFile, setSelectedFile] = useState(null);
-    const [imageUrl, setImageUrl] = useState(user.photoURL);
+    const [imageUrl, setImageUrl] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
@@ -31,20 +31,20 @@ function HomepageLogging() {
         if (socket) {
             return; // Avoid creating a new socket if one is already present
         }
-        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
-            transports: ['websocket'],
-            autoConnect: true,
-            cors: {
-                origin: '*',
-            },
-        });
-        // const newSocket = io('http://localhost:8080', {
+        // const newSocket = io('https://tictactalk.as.r.appspot.com/', {
         //     transports: ['websocket'],
         //     autoConnect: true,
         //     cors: {
         //         origin: '*',
         //     },
         // });
+        const newSocket = io('http://localhost:8080', {
+            transports: ['websocket'],
+            autoConnect: true,
+            cors: {
+                origin: '*',
+            },
+        });
         setSocket(newSocket);
 
         return () => {
@@ -57,8 +57,8 @@ function HomepageLogging() {
         setUserName({
             displayName: user.displayName,
         });
-        setImageUrl(user.photoURL)
 
+        setImageUrl(user.photoURL)
     }, [user.displayName, user.photoURL]);
 
     useEffect(() => {
@@ -167,6 +167,37 @@ function HomepageLogging() {
         const { name, value } = e.target;
         setUserName((prevValues) => ({ ...prevValues, [name]: value }));
     };
+    // const handleUpload = async () => {
+    //     try {
+    //         if (!selectedFile) {
+    //             setError("Please select a file to upload.");
+    //             return;
+    //         }
+
+    //         // Create a storage reference to where the file will be uploaded
+    //         const storageRef = storage.ref();
+    //         const fileRef = storageRef.child(selectedFile.name);
+
+    //         // Upload file to Firebase Storage
+    //         await fileRef.put(selectedFile);
+
+    //         // Get the download URL of the uploaded file
+    //         const downloadUrl = await fileRef.getDownloadURL();
+
+    //         // Update user profile with the download URL of the uploaded image
+    //         await updateProfile(auth.currentUser, {
+    //             photoURL: downloadUrl,
+    //         });
+
+    //         // Close the modal and reset state
+    //         setIsModalOpen(false);
+    //         setSelectedFile(null);
+    //         setImageUrl(null);
+    //     } catch (error) {
+    //         console.error("Error uploading image:", error);
+    //         setError("Error uploading image. Please try again later.");
+    //     }
+    // };
     return (
         <div className="text-center">
             <h1 className="text-7xl font-thin">Tic Tac Talk</h1>
@@ -232,7 +263,7 @@ function HomepageLogging() {
                     </motion.button>
                     <div className='mb-2'>
                         <label className='font-bold text-gray-700 block' htmlFor="roomCode">RoomCode?</label>
-                        <input className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5' id='roomCode' type="text" value={roomCode} onChange={handleRoomCodeChange} placeholder="AZ8A2" />
+                        <input className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5' id='roomCode' type="text" value={roomCode} onChange={handleRoomCodeChange} placeholder="AZSQCT" />
                     </div>
                     <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
