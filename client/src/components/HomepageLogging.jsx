@@ -31,20 +31,20 @@ function HomepageLogging() {
         if (socket) {
             return; // Avoid creating a new socket if one is already present
         }
-        // const newSocket = io('https://tictactalk.as.r.appspot.com/', {
-        //     transports: ['websocket'],
-        //     autoConnect: true,
-        //     cors: {
-        //         origin: '*',
-        //     },
-        // });
-        const newSocket = io('http://localhost:8080', {
+        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {
                 origin: '*',
             },
         });
+        // const newSocket = io('http://localhost:8080', {
+        //     transports: ['websocket'],
+        //     autoConnect: true,
+        //     cors: {
+        //         origin: '*',
+        //     },
+        // });
         setSocket(newSocket);
 
         return () => {
