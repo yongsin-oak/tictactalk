@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useUserAuth } from '../context/UserAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Box, Collapse } from '@mui/material';
-import { doc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { Edit } from '@mui/icons-material';
 import { updateProfile } from 'firebase/auth';
@@ -56,7 +56,7 @@ function HomepageLogging() {
         setUserName({
             displayName: user.displayName,
         });
-        
+
     }, [user.displayName, user.photoURL]);
 
     useEffect(() => {
@@ -114,18 +114,32 @@ function HomepageLogging() {
     //     socket.emit('findMatch', { userId: user.uid });
     // };
 
-    function generateRoomCode() {
+    async function generateRoomCode() {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let roomCode = "";
 
         for (let i = 0; i < 5; i++) {
             roomCode += letters[Math.floor(Math.random() * letters.length)];
         }
+        const roomsCollectionRef = collection(db, 'rooms');
+        const roomCodeQuery = query(roomsCollectionRef, where("roomCode", "==", roomCode));
 
-        return roomCode;
+        try {
+            const querySnapshot = await getDocs(roomCodeQuery);
+            if (querySnapshot.size === 0) {
+                // No document with the generated roomCode exists, return it
+                return roomCode;
+            } else {
+                // A document with the generated roomCode exists, regenerate a new one
+                return generateRoomCode(); // Recursively call the function to generate a new roomCode
+            }
+        } catch (error) {
+            console.error("Error checking roomCode existence:", error);
+            return null;
+        }
     }
-    const handleCreateRoom = () => {
-        const newRoomCode = generateRoomCode();
+    const handleCreateRoom = async() => {
+        const newRoomCode = await generateRoomCode();
         navigate(`/roomgame?&roomCode=${encodeURIComponent(newRoomCode)}`);
     };
     const handleJoinRoom = () => {
@@ -207,13 +221,13 @@ function HomepageLogging() {
                         </motion.button>
                     </div>
                 </form>
-                <Box mt={2} className="gap-2 grid w-4/12 m-auto">
+                <Box mt={2} className="gap-2 grid w-6/12 m-auto">
                     <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
                 border-green-700 hover:border-green-500 rounded
                  text-2xl" whileTap={{ transform: "translateY(5px)" }}
                         onClick={handleCreateRoom}>
-                        Play!
+                        Create Room
                     </motion.button>
                     <div className='mb-2'>
                         <label className='font-bold text-gray-700 block' htmlFor="roomCode">RoomCode?</label>

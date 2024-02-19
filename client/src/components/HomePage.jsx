@@ -43,14 +43,12 @@ function HomePage() {
                             Register
                         </button> */}
                         <button
-                            className={`h-14 w-full 
-                                bg-blue-500 hover:bg-blue-400 
-                                text-white font-thin py-2 px-4 border-b-4 
-                                border-blue-700 hover:border-blue-500 rounded
-                                text-2xl focus:outline-none`}
+                            className={styles.registerButton}
                             onClick={() => handleAuthClick(false)}
-                        >
+                        ><span>
                             Register
+                        </span>
+                            
                         </button>
                     </div>
 
