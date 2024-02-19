@@ -56,8 +56,8 @@ function Tictactoe() {
         setSocket(newSocket);
 
         return () => {
-            if (socket) {
-                socket.close();
+            if (newSocket) {
+                newSocket.close();
             }
         };
     }, []);
@@ -81,7 +81,7 @@ function Tictactoe() {
             setOAvailableSize(oAvailableSizes);
         });
 
-    }, [socket, roomCode, user, isGameStarted]);
+    }, [socket, roomCode, user]);
 
 
     const checkEndTheGame = () => {

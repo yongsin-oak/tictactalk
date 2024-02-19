@@ -36,13 +36,14 @@ app.all('*', forceSecure);
 
 app.use(cors(corsOptions));
 const server = http.createServer(app);
-const io = socketio(server, {
-    cors: {
-        origin: "https://tictactalk.web.app/",
-        methods: ["GET", "POST"],
-        credentials: true
-    }
-});
+// const io = socketio(server, {
+//     cors: {
+//         origin: "https://tictactalk.web.app/",
+//         methods: ["GET", "POST"],
+//         credentials: true
+//     }
+// });
+const io = socketio(server);
 const PORT = process.env.PORT || 8080
 
 app.get('/', (req, res) => {
@@ -64,11 +65,15 @@ io.on('connection', (socket) => {
     })
 
     socket.on('joinRoom', async ({ roomCode, user }) => {
+        // console.log(user.displayName)
+        // console.log(rooms[roomCode]);
+        // console.log(roomCode)
         socket.join(roomCode);
         try {
             const roomDoc = await roomsCollection.doc(roomCode).get();
 
             if (!roomDoc.exists) {
+                // console.log(user.displayName + 'joined room');
                 const roles = "xo";
                 let role = "";
                 for (let i = 0; i < 1; i++) {
@@ -77,6 +82,7 @@ io.on('connection', (socket) => {
                 rooms[roomCode] = {
                     players: [{ name: user.displayName, id: socket.id }],
                 };
+                console.log(rooms[roomCode]);
                 // Room doesn't exist, create a new one
                 await roomsCollection.doc(roomCode).set({
                     players: [{ name: user.displayName, id: user.uid, role: role }],
@@ -90,14 +96,15 @@ io.on('connection', (socket) => {
                     message: []
                 });
             } else {
+                // rooms[roomCode].players.push({ name: user.displayName, id: socket.id });
                 const players = roomDoc.data().players;
                 const currentRoomData = (await roomsCollection.doc(roomCode).get()).data();
                 if (currentRoomData.players.length === 1 && players[0].id === user.uid) {
                     return;
                 }
                 if (currentRoomData.players.length === 2) {
-                    console.log(players[0].id === user.uid || players[1].id === user.uid);
-                    if (players[0].id === user.uid || players[1].id === user.uid) {
+                    // console.log(currentRoomData);
+                    if (currentRoomData.players[0].id === user.uid || currentRoomData.players[1].id === user.uid) {
                         const currentPlayer = currentRoomData.players[currentRoomData.turns];
                         const anotherPlayer = currentRoomData.players[currentRoomData.turns === 0 ? 1 : 0];
                         io.to(roomCode).emit('gameStart', {
@@ -110,11 +117,16 @@ io.on('connection', (socket) => {
                         });
                         const updatedRoomDoc = (await roomsCollection.doc(roomCode).get()).data().message;
                         io.to(roomCode).emit('chatMessage', updatedRoomDoc);
+
+                        rooms[roomCode].players.push({ name: user.displayName, id: socket.id });
+                        console.log(rooms[roomCode]);
                     }
                     return;
                 }
-                rooms[roomCode].players.push({ name: user.displayName, id: socket.id });
 
+                rooms[roomCode].players.push({ name: user.displayName, id: socket.id });
+                console.log(rooms[roomCode]);
+                
                 players.push({ name: user.displayName, id: user.uid, role: players[0].role === "x" ? "o" : "x" });
 
                 await roomsCollection.doc(roomCode).update({ players: players });
