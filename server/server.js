@@ -96,11 +96,12 @@ io.on('connection', (socket) => {
                     return;
                 }
                 if (currentRoomData.players.length === 2) {
+                    console.log(players[0].id === user.uid || players[1].id === user.uid);
                     if (players[0].id === user.uid || players[1].id === user.uid) {
                         const currentPlayer = currentRoomData.players[currentRoomData.turns];
                         const anotherPlayer = currentRoomData.players[currentRoomData.turns === 0 ? 1 : 0];
                         io.to(roomCode).emit('gameStart', {
-                            currentPlayer: currentPlayer, anotherPlayer: anotherPlayer,
+                            currentPlayer: currentPlayer, anotherPlayer: anotherPlayer, gameStarted: currentRoomData.gameStarted, 
                         });
                         io.to(roomCode).emit('updateBoard', {
                             squares: currentRoomData.squares, nextPlayer: currentRoomData.players[currentRoomData.turns].name,
@@ -128,7 +129,7 @@ io.on('connection', (socket) => {
                 roomsCollection.doc(roomCode).update({ gameStarted: true });
                 // io.to(roomCode).emit('gameStart', currentPlayer, anotherPlayer);
                 io.to(roomCode).emit('gameStart', {
-                    currentPlayer: currentPlayer, anotherPlayer: anotherPlayer,
+                    currentPlayer: currentPlayer, anotherPlayer: anotherPlayer, gameStarted: currentRoomData.gameStarted,
                 });
             }
         } catch (error) {
