@@ -19,7 +19,8 @@ const Chat = ({ socket, roomCode, user }) => {
         };
     }, [socket]);
 
-    const sendMessage = () => {
+    const sendMessage = (e) => {
+        e.preventDefault();
         if (newMessage.trim() !== '') {
             socket.emit('sendMessage', { message: newMessage, roomCode: roomCode, displayName: user.displayName });
             setNewMessage('');
@@ -52,14 +53,15 @@ const Chat = ({ socket, roomCode, user }) => {
                 ))}
             </div>
             {isTyping && <p>{anotherPlayer} is typing...</p>}
-            <div>
+            <form>
                 <input
                     type="text"
                     value={newMessage}
                     onChange={handleChange}
+                    className=' px-1'
                 />
-                <button onClick={sendMessage}>Send</button>
-            </div>
+                <button onClick={sendMessage} type='submit' className='mx-2'>Send</button>
+            </form>
         </div>
     );
 };
