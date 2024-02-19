@@ -23,7 +23,7 @@ function HomepageLogging() {
     });
 
     const [selectedFile, setSelectedFile] = useState(null);
-    const [imageUrl, setImageUrl] = useState(null);
+    const [imageUrl, setImageUrl] = useState(user.photoURL);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
@@ -57,6 +57,7 @@ function HomepageLogging() {
         setUserName({
             displayName: user.displayName,
         });
+        setImageUrl(user.photoURL)
 
     }, [user.displayName, user.photoURL]);
 
@@ -178,7 +179,7 @@ function HomepageLogging() {
             )} */}
             <div onClick={openModal} style={{ cursor: 'pointer' }}>
                 {user.photoURL ? (
-                    <img src={user.photoURL} alt="" className='w-10 h-10 rounded-full mx-auto my-5' />
+                    <img src={imageUrl} alt="" className='w-10 h-10 rounded-full mx-auto my-5' />
                 ) : (
                     <AccountCircleIcon sx={{ fontSize: 40 }} className='mx-auto my-5'></AccountCircleIcon>
                 )}
@@ -231,7 +232,7 @@ function HomepageLogging() {
                     </motion.button>
                     <div className='mb-2'>
                         <label className='font-bold text-gray-700 block' htmlFor="roomCode">RoomCode?</label>
-                        <input className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5' id='roomCode' type="text" value={roomCode} onChange={handleRoomCodeChange} placeholder="AZSQCT" />
+                        <input className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5' id='roomCode' type="text" value={roomCode} onChange={handleRoomCodeChange} placeholder="AZ8A2" />
                     </div>
                     <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
