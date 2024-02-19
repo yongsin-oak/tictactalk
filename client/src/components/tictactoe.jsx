@@ -39,20 +39,20 @@ function Tictactoe() {
         if (socket) {
             return;
         }
-        // const newSocket = io('https://tictactalk.as.r.appspot.com/', {
-        //     transports: ['websocket'],
-        //     autoConnect: true,
-        //     cors: {
-        //         origin: '*',
-        //     },
-        // });
-        const newSocket = io('http://localhost:8080', {
+        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
             transports: ['websocket'],
             autoConnect: true,
             cors: {
                 origin: '*',
             },
         });
+        // const newSocket = io('http://localhost:8080', {
+        //     transports: ['websocket'],
+        //     autoConnect: true,
+        //     cors: {
+        //         origin: '*',
+        //     },
+        // });
         setSocket(newSocket);
 
         return () => {
