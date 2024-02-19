@@ -25,6 +25,7 @@ function HomepageLogging() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     useEffect(() => {
 
         if (socket) {
@@ -97,11 +98,6 @@ function HomepageLogging() {
         setOpen(true);
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setUserName((prevValues) => ({ ...prevValues, [name]: value }));
-    };
-
     const handleLogout = async () => {
         try {
             await logOut();
@@ -138,7 +134,7 @@ function HomepageLogging() {
             return null;
         }
     }
-    const handleCreateRoom = async() => {
+    const handleCreateRoom = async () => {
         const newRoomCode = await generateRoomCode();
         navigate(`/roomgame?&roomCode=${encodeURIComponent(newRoomCode)}`);
     };
@@ -165,6 +161,10 @@ function HomepageLogging() {
 
     const closeModal = () => {
         setIsModalOpen(false);
+    };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUserName((prevValues) => ({ ...prevValues, [name]: value }));
     };
     return (
         <div className="text-center">
