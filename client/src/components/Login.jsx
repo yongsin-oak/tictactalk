@@ -68,13 +68,14 @@ const Login = () => {
           </div>
         </div>
 
-        <Link to="/Register" className="text-sm text-blue-500 block mb-4">
+        <Link to="/Register" className="text-sm text-blue-500 block mb-4 float-start">
           Forgot Password?
         </Link>
-          <button type="submit" className="float-right w-32 p-2 rounded mb-2" style={{ backgroundColor: "#A1EEBD", color: "#0B6C2E" }}>
-            Log In
-          </button>
+        <button type="submit" className="float-right w-32 p-2 rounded mb-2" style={{ backgroundColor: "#A1EEBD", color: "#0B6C2E" }}>
+          Log In
+        </button>
       </form>
+      
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { Edit } from '@mui/icons-material';
 import { updateProfile } from 'firebase/auth';
 import { motion } from 'framer-motion';
 import { io } from 'socket.io-client';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function HomepageLogging() {
     const [roomCode, setRoomCode] = useState('');
@@ -21,7 +22,11 @@ function HomepageLogging() {
         displayName: user.displayName,
     });
 
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     useEffect(() => {
+
         if (socket) {
             return; // Avoid creating a new socket if one is already present
         }
@@ -51,7 +56,8 @@ function HomepageLogging() {
         setUserName({
             displayName: user.displayName,
         });
-    }, [user]);
+        
+    }, [user.displayName, user.photoURL]);
 
     useEffect(() => {
         if (!socket) return;
@@ -128,15 +134,61 @@ function HomepageLogging() {
     const handleRoomCodeChange = (event) => {
         setRoomCode(event.target.value);
     };
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setSelectedFile(file);
+        setImageUrl(URL.createObjectURL(file));
+    };
+    const setImg = () => {
+        updateProfile(auth.currentUser, {
+            photoURL: imageUrl,
+        });
+        setIsModalOpen(false);
+    }
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
     return (
         <div className="text-center">
-            <h1 className="text-7xl font-thin mb-6">Tic Tac Talk</h1>
+            <h1 className="text-7xl font-thin">Tic Tac Talk</h1>
+            {/* {user.photoURL && (
+                <img src={user.photoURL} alt="" className='w-10 h-10 rounded-full mx-auto my-5' />
+            )}
+            {!user.photoURL && (
+                <AccountCircleIcon sx={{ fontSize: 40 }} className='mx-auto my-5'></AccountCircleIcon>
+
+            )} */}
+            <div onClick={openModal} style={{ cursor: 'pointer' }}>
+                {user.photoURL ? (
+                    <img src={user.photoURL} alt="" className='w-10 h-10 rounded-full mx-auto my-5' />
+                ) : (
+                    <AccountCircleIcon sx={{ fontSize: 40 }} className='mx-auto my-5'></AccountCircleIcon>
+                )}
+            </div>
+            {isModalOpen && (
+                <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-8 rounded-lg">
+                        <input type="file" accept="image/*" onChange={handleFileChange} className="mt-3" />
+                        <button onClick={closeModal} className="bg-red-500 text-white px-4 py-2 rounded mt-4">Close</button>
+                        {imageUrl && (
+                            <>
+                                <img src={imageUrl} alt="" className='w-40 h-40 rounded-full mx-auto my-5' />
+                                <button className='bg-green-600 text-white px-4 py-2 rounded' onClick={setImg}>Choose this!</button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
             <div>
                 {error && <Collapse in={open}>
                     <Alert onClose={() => { setOpen(false); }} severity={iserror ? "error" : "success"} variant="filled" className='my-3'>{error}</Alert>
                 </Collapse>}
                 <form onSubmit={handleSubmit}>
-                    <div className='flex w-full justify-center'>
+                    <div className='flex w-full justify-center items-center'>
                         <p>
                             Welcome,
                         </p>

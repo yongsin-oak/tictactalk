@@ -8,7 +8,7 @@ const App = () => {
   const { user } = useUserAuth();
 
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-screen items-center justify-center w-screen">
       {user ? (
         <HomepageLogging></HomepageLogging>
       ) : (
