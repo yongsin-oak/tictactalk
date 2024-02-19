@@ -10,7 +10,7 @@ const ChooseX = ({ size, updateSquares, ind, customText }) => {
 
     const selectSize = (size) => {
         if (size === undefined) return 1;
-        let sizes = [0.5, 0.75, 1]
+        let sizes = [0.3, 0.6, 1]
         return sizes[size]
     }
 
