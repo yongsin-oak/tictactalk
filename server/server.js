@@ -99,7 +99,6 @@ io.on('connection', (socket) => {
                     if (players[0].id === user.uid || players[1].id === user.uid) {
                         const currentPlayer = currentRoomData.players[currentRoomData.turns];
                         const anotherPlayer = currentRoomData.players[currentRoomData.turns === 0 ? 1 : 0];
-                        // io.to(roomCode).emit('gameStart', currentPlayer, anotherPlayer);
                         io.to(roomCode).emit('gameStart', {
                             currentPlayer: currentPlayer, anotherPlayer: anotherPlayer,
                         });

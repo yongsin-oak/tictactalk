@@ -13,7 +13,7 @@ import { useUserAuth } from "../context/UserAuthContext";
 import { auth } from "../firebase";
 import Chat from "./Chat";
 
-function Tictactoe() {
+function TictactoeTeam() {
     const [squares, setSquares] = useState(Array(9).fill(""));
     const [sizeSquares, setSizeSquares] = useState(Array(9).fill(-1));
     const [turn, setTurn] = useState("x");
@@ -25,6 +25,14 @@ function Tictactoe() {
 
     const [xSize, setXSize] = useState(1);
     const [oSize, setOSize] = useState(1);
+
+    const [navigaterX, setNavigaterX] = useState("");
+    const [navigaterO, setNavigaterO] = useState("");
+
+    const [driverX, setDriverX] = useState("");
+    const [driverO, setDriverO] = useState("");
+
+    const [naviOrDriver, setNaviOrDriver] = useState("");
 
     const [socket, setSocket] = useState(null);
     const [isGameStarted, setIsGameStarted] = useState(false);
@@ -398,4 +406,4 @@ function Tictactoe() {
     );
 }
 
-export default Tictactoe;
+export default TictactoeTeam;

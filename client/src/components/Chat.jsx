@@ -58,7 +58,7 @@ const Chat = ({ socket, roomCode, user }) => {
                     type="text"
                     value={newMessage}
                     onChange={handleChange}
-                    className=' px-1'
+                    className='p-1'
                 />
                 <button onClick={sendMessage} type='submit' className='mx-2'>Send</button>
             </form>
