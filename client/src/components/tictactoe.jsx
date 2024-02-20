@@ -56,8 +56,8 @@ function Tictactoe() {
         setSocket(newSocket);
 
         return () => {
-            if (socket) {
-                socket.close();
+            if (newSocket) {
+                newSocket.close();
             }
         };
     }, []);
