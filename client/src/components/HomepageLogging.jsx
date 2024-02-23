@@ -21,10 +21,14 @@ function HomepageLogging() {
     const [username, setUserName] = useState({
         displayName: user.displayName,
     });
+    const [findRoom, setFindRoom] = useState(false);
+    const [countup, setCountup] = useState({ minutes: 0, seconds: 0 });
+
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isInputVisible, setIsInputVisible] = useState(false);
 
     useEffect(() => {
 
@@ -107,40 +111,90 @@ function HomepageLogging() {
             console.log(err.message);
         }
     };
-    // const handleFindMatch = () => {
-    //     socket.emit('findMatch', { userId: user.uid });
-    // };
 
     async function generateRoomCode() {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let roomCode = "";
 
+        let checkRoomCode = false;
+
         for (let i = 0; i < 5; i++) {
             roomCode += letters[Math.floor(Math.random() * letters.length)];
         }
         const roomsCollectionRef = collection(db, 'rooms');
-        const roomCodeQuery = query(roomsCollectionRef, where("roomCode", "==", roomCode));
-
-        try {
-            const querySnapshot = await getDocs(roomCodeQuery);
-            if (querySnapshot.size === 0) {
-                // No document with the generated roomCode exists, return it
-                return roomCode;
-            } else {
-                // A document with the generated roomCode exists, regenerate a new one
-                return generateRoomCode(); // Recursively call the function to generate a new roomCode
+        const querySnapshot = await getDocs(roomsCollectionRef)
+        querySnapshot.forEach((doc) => {
+            if (roomCode === doc.id) {
+                checkRoomCode = true;
             }
-        } catch (error) {
-            console.error("Error checking roomCode existence:", error);
-            return null;
+        })
+        if (checkRoomCode === true) {
+            return generateRoomCode();
+        } else {
+            console.log(roomCode)
+            return roomCode;
         }
+    }
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on('matchFound', ({ roomCode }) => {
+            console.log(roomCode);
+            navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode)}`);
+        });
+    }, [socket, roomCode]);
+    useEffect(() => {
+        let timer;
+        if (findRoom) {
+            timer = setInterval(() => {
+                // Increase seconds by 1
+                setCountup(prevCountup => {
+                    let updatedSeconds = prevCountup.seconds + 1;
+                    let updatedMinutes = prevCountup.minutes;
+
+                    // Check if seconds reach 60 and adjust minutes accordingly
+                    if (updatedSeconds >= 60) {
+                        updatedMinutes += 1;
+                        updatedSeconds = 0;
+                    }
+
+                    return { minutes: updatedMinutes, seconds: updatedSeconds };
+                });
+            }, 1000); // Increase count-up every second
+        }
+        return () => {
+            setCountup({ minutes: 0, seconds: 0 });
+            clearInterval(timer); // Clear timer when component unmounts
+        };
+
+
+    }, [findRoom]);
+    const formattedTime = `${countup.minutes.toString().padStart(2, '0')}:${countup.seconds.toString().padStart(2, '0')}`;
+
+    const handleFindRoom = () => {
+        if (findRoom) return;
+        setFindRoom(true);
+        socket.emit('waitingPlayer', { user });
+        setIsInputVisible(false);
+    }
+    const cancelFindRoom = () => {
+        setFindRoom(false);
+        socket.emit('cancelWaiting');
+
     }
     const handleCreateRoom = async () => {
         const newRoomCode = await generateRoomCode();
+        console.log(newRoomCode);
         navigate(`/roomgame?&roomCode=${encodeURIComponent(newRoomCode)}`);
     };
-    const handleJoinRoom = () => {
-        navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode)}`);
+    const handleJoinRoom = async (e) => {
+        const roomsCollectionRef = collection(db, 'rooms');
+        const querySnapshot = await getDocs(roomsCollectionRef)
+        querySnapshot.forEach((doc) => {
+            if (roomCode === doc.id) {
+                navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode)}`);
+            }
+        })
     };
     const handleRoomCodeChange = (event) => {
         setRoomCode(event.target.value);
@@ -167,47 +221,15 @@ function HomepageLogging() {
         const { name, value } = e.target;
         setUserName((prevValues) => ({ ...prevValues, [name]: value }));
     };
-    // const handleUpload = async () => {
-    //     try {
-    //         if (!selectedFile) {
-    //             setError("Please select a file to upload.");
-    //             return;
-    //         }
-
-    //         // Create a storage reference to where the file will be uploaded
-    //         const storageRef = storage.ref();
-    //         const fileRef = storageRef.child(selectedFile.name);
-
-    //         // Upload file to Firebase Storage
-    //         await fileRef.put(selectedFile);
-
-    //         // Get the download URL of the uploaded file
-    //         const downloadUrl = await fileRef.getDownloadURL();
-
-    //         // Update user profile with the download URL of the uploaded image
-    //         await updateProfile(auth.currentUser, {
-    //             photoURL: downloadUrl,
-    //         });
-
-    //         // Close the modal and reset state
-    //         setIsModalOpen(false);
-    //         setSelectedFile(null);
-    //         setImageUrl(null);
-    //     } catch (error) {
-    //         console.error("Error uploading image:", error);
-    //         setError("Error uploading image. Please try again later.");
-    //     }
-    // };
+    const handleButtonClick = () => {
+        setIsInputVisible(true);
+    };
+    const handleInputBlur = () => {
+        setIsInputVisible(false);
+    };
     return (
         <div className="text-center">
             <h1 className="text-7xl font-thin">Tic Tac Talk</h1>
-            {/* {user.photoURL && (
-                <img src={user.photoURL} alt="" className='w-10 h-10 rounded-full mx-auto my-5' />
-            )}
-            {!user.photoURL && (
-                <AccountCircleIcon sx={{ fontSize: 40 }} className='mx-auto my-5'></AccountCircleIcon>
-
-            )} */}
             <div onClick={openModal} style={{ cursor: 'pointer' }}>
                 {user.photoURL ? (
                     <img src={imageUrl} alt="" className='w-10 h-10 rounded-full mx-auto my-5' />
@@ -253,7 +275,23 @@ function HomepageLogging() {
                         </motion.button>
                     </div>
                 </form>
-                <Box mt={2} className="gap-2 grid w-6/12 m-auto">
+                <Box mt={2} className="gap-2 grid w-6/12 m-auto relative">
+                    <motion.button className="h-14 w-full bg-orange-600 hover:bg-orange-400
+                text-white font-thin py-2 px-4 border-b-4 
+                border-orange-700 hover:border-orange-500 rounded
+                 text-2xl" whileTap={{ transform: "translateY(5px)" }}
+                        onClick={handleFindRoom}>
+                        {findRoom ? `${formattedTime}` : 'Find Match'}
+                    </motion.button>
+                    {findRoom && (
+                        <motion.button className="absolute left-full ml-2 h-14 w-2/4 bg-orange-600 hover:bg-orange-400
+                text-white font-thin py-2 border-b-4 
+                border-orange-700 hover:border-orange-500 rounded
+                 text-2xl" whileTap={{ transform: "translateY(5px)" }}
+                            onClick={cancelFindRoom}>
+                            Cancel
+                        </motion.button>
+                    )}
                     <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
                 border-green-700 hover:border-green-500 rounded
@@ -261,9 +299,10 @@ function HomepageLogging() {
                         onClick={handleCreateRoom}>
                         Create Room
                     </motion.button>
-                    <div className='mb-2'>
+                    {/* <div className='mb-2 absolute mx-auto left-0 right-0 bottom-1/4'>
                         <label className='font-bold text-gray-700 block' htmlFor="roomCode">RoomCode?</label>
-                        <input className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5' id='roomCode' type="text" value={roomCode} onChange={handleRoomCodeChange} placeholder="AZSQCT" />
+                        <input className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5' id='roomCode'
+                        type="text" value={roomCode} onChange={handleRoomCodeChange} placeholder="AZ1QC" />
                     </div>
                     <motion.button className="h-14 w-full bg-green-500 hover:bg-green-400 
                 text-white font-thin py-2 px-4 border-b-4 
@@ -271,7 +310,52 @@ function HomepageLogging() {
                  text-2xl" whileTap={{ transform: "translateY(5px)" }}
                         onClick={handleJoinRoom}>
                         Join
-                    </motion.button>
+                    </motion.button> */}
+                    {isInputVisible ? (
+                        <>
+                            <input
+                                className='bg-gray-50 border border-gray-300 text-gray-900 
+                                text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block 
+                                w-full p-2.5 uppercase'
+                                id='roomCode'
+                                type="text"
+                                value={roomCode}
+                                onChange={handleRoomCodeChange}
+                                placeholder="Room Code?"
+                                maxLength={5}
+                            />
+                            <div className='flex'>
+                                <button
+                                    className="h-14 w-2/5 bg-green-500 hover:bg-green-400 
+                                text-white font-thin
+                                border-b-4 border-green-700  hover:border-green-500
+                                rounded text-2xl mt-1 mx-auto"
+                                    onClick={handleJoinRoom}
+                                >
+                                    Join
+                                </button>
+                                <button
+                                    className="h-14 w-2/5 bg-red-600 hover:bg-red-400 
+                                text-white font-thin 
+                                border-b-4 border-red-700 hover:border-red-500
+                                rounded text-2xl mt-1 mx-auto"
+                                    onClick={handleInputBlur}
+                                >
+                                    Back
+                                </button>
+                            </div>
+
+                        </>
+                    ) : (
+                        <button
+                            className="h-14 w-full bg-green-500 hover:bg-green-400 
+                            text-white font-thin py-2 px-4 border-b-4 border-green-700 
+                            hover:border-green-500 rounded text-2xl"
+                            onClick={handleButtonClick}
+                        >
+                            Join Room
+                        </button>
+                    )}
                     <button
                         className="bg-transparent h-14 w-full 
                 hover:bg-red-500 

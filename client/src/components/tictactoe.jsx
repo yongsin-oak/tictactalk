@@ -32,6 +32,7 @@ function Tictactoe() {
     const [player2Name, setPlayer2Name] = useState("");
     const location = useLocation();
     const { roomCode } = queryString.parse(location.search);
+
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
 
@@ -39,20 +40,20 @@ function Tictactoe() {
         if (socket) {
             return;
         }
-        const newSocket = io('https://tictactalk.as.r.appspot.com/', {
-            transports: ['websocket'],
-            autoConnect: true,
-            cors: {
-                origin: '*',
-            },
-        });
-        // const newSocket = io('http://localhost:8080', {
+        // const newSocket = io('https://tictactalk.as.r.appspot.com/', {
         //     transports: ['websocket'],
         //     autoConnect: true,
         //     cors: {
         //         origin: '*',
         //     },
         // });
+        const newSocket = io('http://localhost:8080', {
+            transports: ['websocket'],
+            autoConnect: true,
+            cors: {
+                origin: '*',
+            },
+        });
         setSocket(newSocket);
 
         return () => {
@@ -63,24 +64,25 @@ function Tictactoe() {
     }, []);
     useEffect(() => {
         if (!socket) return;
-        socket.emit('joinRoom', { roomCode, user });
-        socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
-            setRole(currentPlayer.name === user.displayName ? currentPlayer.role : anotherPlayer.role);
-            setIsMyTurn(currentPlayer.name === user.displayName);
-            setPlayer2Name(currentPlayer.name === user.displayName ? anotherPlayer.name : currentPlayer.name);
-            setIsGameStarted(true);
-        });
+        if (roomCode) {
+            socket.emit('joinRoom', { roomCode, user });
+            socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
+                setRole(currentPlayer.name === user.displayName ? currentPlayer.role : anotherPlayer.role);
+                setIsMyTurn(currentPlayer.name === user.displayName);
+                setPlayer2Name(currentPlayer.name === user.displayName ? anotherPlayer.name : currentPlayer.name);
+                setIsGameStarted(true);
+            });
 
-        socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
-            setTurn(playerTurn);
-            setSizeSquares(pieceSizes);
-            setSquares(squares);
-            setWinner(winner);
-            setIsMyTurn(nextPlayer === user.displayName ? true : false);
-            setXAvailableSize(xAvailableSizes);
-            setOAvailableSize(oAvailableSizes);
-        });
-
+            socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
+                setTurn(playerTurn);
+                setSizeSquares(pieceSizes);
+                setSquares(squares);
+                setWinner(winner);
+                setIsMyTurn(nextPlayer === user.displayName ? true : false);
+                setXAvailableSize(xAvailableSizes);
+                setOAvailableSize(oAvailableSizes);
+            });
+        }
     }, [socket, roomCode, user]);
 
 
@@ -190,17 +192,22 @@ function Tictactoe() {
         return xAvailableSizes;
     }
 
+    const greeting = () => {
+        const greetings = [`Hello, ${user.displayName}`, `How are you to day ${user.displayName}?`,
+        `Will you win ${user.displayName}?`, `Hope you win ${user.displayName}.`, `Hope you enjoy ${user.displayName}.`,
+        `We are looking players for you, ${user.displayName}.`]
+        return greetings[Math.floor(Math.random() * greetings.length)];
+    }
 
     const renderGameContent = () => {
         if (!isGameStarted && winner === null) {
             return (
                 <div className='flex flex-col justify-center items-center gap-6'>
                     <h1 className='text-4xl font-bold text-white text-center'>TicTacTalk</h1>
-
                     <div className='flex flex-col justify-center items-center gap-4 mb-4'>
+                        <span className='text-xl font-semibold text-gray-400'>{greeting()}</span>
                         <span className='text-xl font-semibold text-gray-400'>Room Code : {roomCode}</span>
                     </div>
-
                     <Spinner text='Waiting Player...' />
                 </div>
             );
