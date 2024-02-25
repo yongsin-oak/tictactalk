@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Chat = ({ socket, roomCode, user }) => {
+const ChatTeam = ({ socket, roomCode, user, role }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -8,42 +8,40 @@ const Chat = ({ socket, roomCode, user }) => {
 
     useEffect(() => {
         // Listen for incoming messages from the server
-        socket.on('chatMessage', (message) => {
-            setMessages(message);
-            // setMessages((prevMessages) => [...prevMessages, message]);
-        });
 
-        // Clean up socket listener when component unmounts
-        return () => {
-            socket.off('chatMessage');
-        };
+        socket.on('chatTeamMessage', (message) => {
+            if(role === message.role) {
+                setMessages(message.updatedRoomDoc);
+            }
+        });
+        // return () => {
+        //     socket.off('chatTeamMessage');
+        // };
     }, [socket]);
 
     const sendMessage = (e) => {
         e.preventDefault();
         if (newMessage.trim() !== '') {
-            socket.emit('sendMessage', { message: newMessage, roomCode: roomCode, displayName: user.displayName, email: user.email });
+            socket.emit('sendTeamMessage', { message: newMessage, roomCode: roomCode, role: role, displayName: user.displayName });
             setNewMessage('');
-            socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: false });
+            socket.emit('typingTeam', { displayName: user.displayName, isTyping: false });
         }
     };
     const handleChange = (e) => {
         setNewMessage(e.target.value);
-        socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: true });
+        socket.emit('typingTeam', { displayName: user.displayName, isTyping: true });
         if (e.target.value === ''){
-            socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: false });
+            socket.emit('typingTeam', { displayName: user.displayName, isTyping: false });
         }
         
         setTimeout(() => {
-            socket.emit('typing', {roomCode, displayName: user.displayName, isTyping: false });
+            socket.emit('typingTeam', { displayName: user.displayName, isTyping: false });
         }, 7000);
     }
 
-    socket.on('typing', ({ roomCode: receivedRoomCode, isTyping, displayName }) => {
-        if (receivedRoomCode === roomCode) {
-            setAnotherPlayer(displayName);
-            setIsTyping(isTyping);
-        }
+    socket.on('typingTeam', ({ team, isTyping, displayName }) => {
+        setAnotherPlayer(displayName);
+        setIsTyping(isTyping);
     });
     return (
         <div className='text-start'>
@@ -66,4 +64,4 @@ const Chat = ({ socket, roomCode, user }) => {
     );
 };
 
-export default Chat;
+export default ChatTeam;

@@ -19,10 +19,10 @@ const router = createBrowserRouter([
     path: "/roomgame",
     element: <ProtectedRoute><Tictactoe /></ProtectedRoute>
   },
-  // {
-  //   path: "/roomgameteam",
-  //   element: <ProtectedRoute><TictactoeTeam /></ProtectedRoute>
-  // }
+  {
+    path: "/roomgameTeam",
+    element: <ProtectedRoute><TictactoeTeam /></ProtectedRoute>
+  }
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

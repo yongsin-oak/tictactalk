@@ -32,7 +32,9 @@ function Tictactoe() {
     const [player2Name, setPlayer2Name] = useState("");
     const location = useLocation();
     const { roomCode } = queryString.parse(location.search);
+    const { team } = queryString.parse(location.search);
 
+    console.log(team);
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
 
@@ -64,25 +66,23 @@ function Tictactoe() {
     }, []);
     useEffect(() => {
         if (!socket) return;
-        if (roomCode) {
-            socket.emit('joinRoom', { roomCode, user });
-            socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
-                setRole(currentPlayer.name === user.displayName ? currentPlayer.role : anotherPlayer.role);
-                setIsMyTurn(currentPlayer.name === user.displayName);
-                setPlayer2Name(currentPlayer.name === user.displayName ? anotherPlayer.name : currentPlayer.name);
-                setIsGameStarted(true);
-            });
+        socket.emit('joinRoom', { roomCode, user });
+        socket.on('gameStart', ({ currentPlayer, anotherPlayer }) => {
+            setRole(currentPlayer.email === user.email ? currentPlayer.role : anotherPlayer.role);
+            setIsMyTurn(currentPlayer.email === user.email);
+            setPlayer2Name(currentPlayer.email === user.email ? anotherPlayer.name : currentPlayer.name);
+            setIsGameStarted(true);
+        });
 
-            socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
-                setTurn(playerTurn);
-                setSizeSquares(pieceSizes);
-                setSquares(squares);
-                setWinner(winner);
-                setIsMyTurn(nextPlayer === user.displayName ? true : false);
-                setXAvailableSize(xAvailableSizes);
-                setOAvailableSize(oAvailableSizes);
-            });
-        }
+        socket.on('updateBoard', ({ squares, nextPlayer, pieceSizes, playerTurn, winner, xAvailableSizes, oAvailableSizes }) => {
+            setTurn(playerTurn);
+            setSizeSquares(pieceSizes);
+            setSquares(squares);
+            setWinner(winner);
+            setIsMyTurn(nextPlayer === user.email ? true : false);
+            setXAvailableSize(xAvailableSizes);
+            setOAvailableSize(oAvailableSizes);
+        });
     }, [socket, roomCode, user]);
 
 
