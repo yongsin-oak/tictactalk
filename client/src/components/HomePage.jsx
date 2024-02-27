@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Auth from './Auth';
 import styles from './Homepage.module.css';
+import { TiArrowLeftThick } from "react-icons/ti";
+
 
 
 function HomePage() {
@@ -32,23 +34,13 @@ function HomePage() {
                         >
                             Login
                         </button>
-                        {/* <button
-                            className={`h-14 w-4/5 
-                                bg-blue-500 hover:bg-blue-400 
-                                text-white font-thin py-2 px-4 border-b-4 
-                                border-blue-700 hover:border-blue-500 rounded
-                                text-2xl focus:outline-none`}
-                            onClick={() => handleAuthClick(false)}
-                        >
-                            Register
-                        </button> */}
                         <button
                             className={styles.registerButton}
                             onClick={() => handleAuthClick(false)}
                         ><span>
-                            Register
-                        </span>
-                            
+                                Register
+                            </span>
+
                         </button>
                     </div>
 
@@ -56,9 +48,7 @@ function HomePage() {
             )}
             {isAuthModalOpen && (
                 <>
-                    <div className='text-2xl absolute top-2 left-2' onClick={handleAuthBack}>
-                        Back
-                    </div>
+                    <TiArrowLeftThick size={48} onClick={handleAuthBack} color='' className='text-2xl absolute top-2 left-2 cursor-pointer'/>
                     <Auth LoginSet={LoginOrRegister} />
                 </>
             )}

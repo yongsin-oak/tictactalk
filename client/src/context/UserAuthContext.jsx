@@ -32,23 +32,11 @@ export function UserAuthContextProvider({ children }) {
         const email = user.email;
         const userDocRef = doc(db, 'users', uid);
         setDoc(userDocRef, {
-          uid: uid,
           email: email,
           username: user.displayName,
-          // userName: username,
-          // Add more user information as needed
         });
         setUser(user.user);
-      }).catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
+      })
   }
   async function signUp(email, password) {
     try {

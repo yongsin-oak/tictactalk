@@ -8,6 +8,8 @@ import { useUserAuth } from '../context/UserAuthContext';
 
 const AuthPage = ({ LoginSet }) => {
     const [login, setLogin] = useState(LoginSet);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const { googleSignUp } = useUserAuth();
 
     const setTrue = () => {
@@ -19,6 +21,13 @@ const AuthPage = ({ LoginSet }) => {
     const googlePopup = () => {
         googleSignUp()
     }
+    const handleEmailChange = (e) => {
+        setEmail(e.target.value);
+    };
+
+    const handlePasswordChange = (e) => {
+        setPassword(e.target.value);
+    };
     return (
         <div className="items-center justify-center relative grid h-screen">
             <motion.div
@@ -34,17 +43,15 @@ const AuthPage = ({ LoginSet }) => {
                     </button>
                 </div>
                 {login ? (
-                    <Login />
+                    <Login keepEmail={email} keepPassword={password} onEmailChange={handleEmailChange} onPasswordChange={handlePasswordChange} />
                 ) : (
-                    <Register />
+                    <Register keepEmail={email} keepPassword={password} onEmailChange={handleEmailChange} onPasswordChange={handlePasswordChange} />
                 )}
                 <div className='flex justify-center items-center gap-2 my-3'>
                     <hr className="h-px border-0 bg-neutral-500 m-auto w-3/4"></hr>
                     <span>OR</span>
                     <hr className="h-px border-0 bg-neutral-500  m-auto w-3/4"></hr>
                 </div>
-
-                {/* <h4 className='mb-4 mt-2'>OR</h4> */}
                 <GoogleButton
                     onClick={() => googlePopup()}
                     className='m-auto'

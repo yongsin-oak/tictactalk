@@ -57,6 +57,7 @@ server.listen(PORT, () => {
 
 const rooms = {};
 let waitingRoom = []
+let waitingTeamRoom = []
 const roomsCollection = firestore.collection('rooms');
 // const waitingRoom = []
 io.on('connection', (socket) => {
@@ -68,6 +69,12 @@ io.on('connection', (socket) => {
         console.log(waitingRoom)
         setInterval(findMatch, 1000);
     })
+    socket.on('waitingTeamPlayer', ({ user }) => {
+        console.log(`Socket : ${socket.id} is Waiting Player`);
+        waitingTeamRoom.push({ name: user.displayName, id: socket.id });
+        console.log(waitingTeamRoom);
+        setInterval(findTeamMatch, 1000);
+    })
     socket.on('cancelWaiting', () => {
         console.log(`Socket : ${socket.id} is Cancel Waiting`);
         const index = waitingRoom.findIndex(player => player.id === socket.id);
@@ -75,6 +82,14 @@ io.on('connection', (socket) => {
             waitingRoom.splice(index, 1);
         }
         console.log(waitingRoom)
+    })
+    socket.on('cancelTeamWaiting', () => {
+        console.log(`Socket : ${socket.id} is Cancel Waiting`);
+        const index = waitingTeamRoom.findIndex(player => player.id === socket.id);
+        if (index !== -1) {
+            waitingTeamRoom.splice(index, 1);
+        }
+        console.log(waitingTeamRoom)
     })
 
     socket.on('joinRoom', async ({ roomCode, user }) => {
@@ -450,6 +465,35 @@ io.on('connection', (socket) => {
             }, 700)
 
             console.log(`Match found! Players: ${player1.name} and ${player2.name} in room ${roomCode}`);
+        }
+    };
+    const findTeamMatch = async () => {
+        if (waitingTeamRoom.length >= 4) {
+            const player1 = waitingTeamRoom.shift();
+            const player2 = waitingTeamRoom.shift();
+            const player3 = waitingTeamRoom.shift();
+            const player4 = waitingTeamRoom.shift();
+
+            const roomCode = await generateRoomCode();
+
+            rooms[roomCode] = {
+                players: [
+                    { name: player1.name, id: player1.id },
+                    { name: player2.name, id: player2.id },
+                    { name: player3.name, id: player3.id },
+                    { name: player4.name, id: player4.id },
+                ]
+            };
+            await io.to(player1.id).emit('matchTeamFound', { roomCode });
+            setTimeout(() => {
+                io.to(player2.id).emit('matchTeamFound', { roomCode });
+            }, 700)
+            setTimeout(() => {
+                io.to(player3.id).emit('matchTeamFound', { roomCode });
+            }, 1400)
+            setTimeout(() => {
+                io.to(player4.id).emit('matchTeamFound', { roomCode });
+            }, 2000)
         }
     };
 

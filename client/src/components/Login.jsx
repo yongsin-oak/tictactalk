@@ -37,13 +37,11 @@ const Login = () => {
           setError('Something went wrong. Please try again.');
           break;
       }
-      console.log(err);
     }
   };
 
   return (
     <div>
-      {/* <h1 className="text-2xl font-bold mb-6">Login</h1> */}
       {error && <Alert severity="error" variant="filled" className='my-3'>{error}</Alert>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4 relative">
@@ -75,7 +73,7 @@ const Login = () => {
           Log In
         </button>
       </form>
-      
+
     </div>
   );
 };

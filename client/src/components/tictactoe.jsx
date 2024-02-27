@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import Button from "./Button";
 import './tictactoe.css';
 import ChooseO from "./ChooseO";
 import ChooseX from "./ChooseX";
@@ -12,6 +11,7 @@ import Spinner from "./Spinner";
 import { useUserAuth } from "../context/UserAuthContext";
 import { auth } from "../firebase";
 import Chat from "./Chat";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -32,9 +32,7 @@ function Tictactoe() {
     const [player2Name, setPlayer2Name] = useState("");
     const location = useLocation();
     const { roomCode } = queryString.parse(location.search);
-    const { team } = queryString.parse(location.search);
 
-    console.log(team);
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
 
@@ -207,6 +205,9 @@ function Tictactoe() {
                     <div className='flex flex-col justify-center items-center gap-4 mb-4'>
                         <span className='text-xl font-semibold text-gray-400'>{greeting()}</span>
                         <span className='text-xl font-semibold text-gray-400'>Room Code : {roomCode}</span>
+                        <CopyToClipboard text={roomCode}>
+                            <button>Copy to clipboard</button>
+                        </CopyToClipboard>
                     </div>
                     <Spinner text='Waiting Player...' />
                 </div>
@@ -215,14 +216,14 @@ function Tictactoe() {
 
         if (isGameStarted) {
             return (
-                <div className='grid grid-cols-2 justify-center items-center gap-6'>
+                <div className='grid lg:grid-cols-2 grid-cols-1 grid-rows-2 justify-center gap-6 w-2/3'>
                     <div className='flex flex-col justify-center items-center gap-6'>
                         <div className='flex flex-col justify-center items-center gap-4 mb-4'>
                             <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
                             <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3>
                         </div>
                         <div className="tictactoe">
-                            <Button resetGame={resetGame} />
+                            {/* <Button resetGame={resetGame} /> */}
                             <div className="game">
                                 {squares.map((_, ind) => (
                                     <DrawXO
@@ -381,7 +382,7 @@ function Tictactoe() {
                                                     transition: { delay: 1.5, duration: 0.3 },
                                                 }}
                                             >
-                                                <Button resetGame={resetGame} />
+                                                <button resetGame={resetGame} />
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>
@@ -396,9 +397,9 @@ function Tictactoe() {
         }
     };
     return (
-        <div className="text-center ">
+        <div className="text-center">
             <h1 className=" text-white text-7xl"> Tic Tac Talk </h1>
-            <div className='container flex justify-center items-center text-center w-full mx-auto'>
+            <div className='container flex justify-center items-center text-center w-screen mx-auto'>
                 {renderGameContent()}
             </div>
         </div>

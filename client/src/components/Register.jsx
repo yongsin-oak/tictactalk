@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { Alert, TextField } from '@mui/material';
 import { useUserAuth } from '../context/UserAuthContext';
-import { motion } from 'framer-motion'; 
+import { motion } from 'framer-motion';
 
 const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);

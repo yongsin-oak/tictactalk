@@ -278,7 +278,7 @@ function TictactoeTeam() {
                             <h3 className='text-2xl font-bold text-gray-300'>{teamName[0]} and {teamName[1]} vs {team2Name[0]} and {team2Name[1]}</h3>
                         </div>
                         <div className="tictactoe">
-                            <Button resetGame={resetGame} />
+                            {/* <Button resetGame={resetGame} /> */}
                             <div className="game">
                                 {squares.map((_, ind) => (
                                     <DrawXO
