@@ -12,6 +12,7 @@ import { useUserAuth } from "../context/UserAuthContext";
 import { auth } from "../firebase";
 import Chat from "./Chat";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Button from "./Button";
 
 function Tictactoe() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -91,6 +92,18 @@ function Tictactoe() {
         return true;
     };
 
+    useEffect(() => {
+        if (!winner || !socket) return;
+        winner === role ? socket.emit('updateWin', { user }) :
+            winner === 'draw' ? socket.emit('updateDraw', { user }) : socket.emit('updateLose', { user });
+        socket.emit('updateNotPlaying', { user });
+    }, [winner])
+
+    useEffect(() => {
+        if (winner || !socket) return;
+        socket.emit('updatePlaying', { user, roomCode });
+    }, [winner])
+
     const checkWinner = () => {
         const combos = [
             [0, 1, 2],
@@ -146,7 +159,7 @@ function Tictactoe() {
         newBoard[ind] = turn;
         setIsMyTurn(false);
 
-        const W = checkEndTheGame() ? "x | o" : checkWinner();
+        const W = checkEndTheGame() ? "draw" : checkWinner();
 
         setTurn(turn === "x" ? "o" : "x");
 
@@ -169,11 +182,11 @@ function Tictactoe() {
     }
 
     const resetGame = () => {
-        setSquares(Array(9).fill(""));
-        setSizeSquares(Array(9).fill(-1));
-        setXAvailableSize([3, 3, 3]);
-        setOAvailableSize([3, 3, 3]);
-        setWinner(null);
+        // setSquares(Array(9).fill(""));
+        // setSizeSquares(Array(9).fill(-1));
+        // setXAvailableSize([3, 3, 3]);
+        // setOAvailableSize([3, 3, 3]);
+        // setWinner(null);
         const newBoard = Array(9).fill("");
         const pieceSizes = Array(9).fill(-1);
         socket.emit('playerMove', {
@@ -216,11 +229,11 @@ function Tictactoe() {
 
         if (isGameStarted) {
             return (
-                <div className='grid lg:grid-cols-2 grid-cols-1 grid-rows-2 justify-center gap-6 w-2/3'>
+                <div className='grid lg:grid-cols-2 grid-cols-1 grid-rows-2 lg:grid-rows-1 justify-center gap-6 lg:w-3/4 w-full'>
                     <div className='flex flex-col justify-center items-center gap-6'>
                         <div className='flex flex-col justify-center items-center gap-4 mb-4'>
-                            <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
-                            <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3>
+                            {/* <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
+                            <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3> */}
                         </div>
                         <div className="tictactoe">
                             {/* <Button resetGame={resetGame} /> */}
@@ -319,7 +332,7 @@ function Tictactoe() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="winner"
+                                        className="winner z-50"
                                     >
                                         <motion.div
                                             key={"child-box"}
@@ -382,7 +395,7 @@ function Tictactoe() {
                                                     transition: { delay: 1.5, duration: 0.3 },
                                                 }}
                                             >
-                                                <button resetGame={resetGame} />
+                                                <Button resetGame={resetGame} />
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>
@@ -390,18 +403,20 @@ function Tictactoe() {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <Chat socket={socket} roomCode={roomCode} user={user}></Chat>
+                    <div className="mx-auto h-2/3 lg:w-9/12 w-11/12 md:w-8/12 relative">
+                        <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
+                        <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3>
+                        <Chat socket={socket} roomCode={roomCode} user={user}></Chat>
+                    </div>
+
                 </div>
 
             );
         }
     };
     return (
-        <div className="text-center">
-            <h1 className=" text-white text-7xl"> Tic Tac Talk </h1>
-            <div className='container flex justify-center items-center text-center w-screen mx-auto'>
-                {renderGameContent()}
-            </div>
+        <div className='container flex justify-center items-center text-center w-screen mx-auto min-h-screen'>
+            {renderGameContent()}
         </div>
     );
 }

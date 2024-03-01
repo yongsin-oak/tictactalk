@@ -271,7 +271,7 @@ function TictactoeTeam() {
 
         if (isGameStarted) {
             return (
-                <div className='grid grid-cols-2 justify-center gap-6'>
+                <div className='grid lg:grid-cols-2 grid-cols-1 grid-rows-2 lg:grid-rows-1 justify-center gap-6 lg:w-3/4 w-full'>
                     <div className='flex flex-col justify-center items-center gap-6'>
                         <div className='flex flex-col justify-center items-center gap-4 mb-4'>
                             <h3 className='text-2xl font-bold text-gray-300'>You are {role} {teamRole}</h3>
@@ -448,8 +448,8 @@ function TictactoeTeam() {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <div className="relative">
-                        <div className={`LoginToggle ${chatAll === true ? "left" : "right"} top-1/4`}>
+                    <div className="relative w-11/12 md:w-8/12 lg:w-9/12 h-3/4 flex flex-col mx-auto">
+                        <div className={`LoginToggle ${chatAll === true ? "left" : "right"} top-0`}>
                             <button className='h-12 w-full z-10 text-center' onClick={setAll}>
                                 <span>All</span>
                             </button>
@@ -457,7 +457,7 @@ function TictactoeTeam() {
                                 <span>Team</span>
                             </button>
                         </div>
-                        <div className="absolute bottom-1/3">
+                        <div className="mx-auto h-full w-full relative">
                             {chatAll ? (
                                 <Chat socket={socket} roomCode={roomCode} user={user}></Chat>
                             ) : <ChatTeam socket={socket} roomCode={roomCode} user={user} role={role}></ChatTeam>}
@@ -469,11 +469,8 @@ function TictactoeTeam() {
         }
     };
     return (
-        <div className="text-center ">
-            <h1 className=" text-white text-7xl"> Tic Tac Talk </h1>
-            <div className='container flex justify-center items-center text-center w-full mx-auto'>
-                {renderGameContent()}
-            </div>
+        <div className='container flex justify-center items-center text-center w-screen mx-auto min-h-screen'>
+            {renderGameContent()}
         </div>
     );
 }

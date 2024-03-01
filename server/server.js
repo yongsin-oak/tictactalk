@@ -59,37 +59,30 @@ const rooms = {};
 let waitingRoom = []
 let waitingTeamRoom = []
 const roomsCollection = firestore.collection('rooms');
+const usersCollection = firestore.collection('users');
 // const waitingRoom = []
 io.on('connection', (socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
     socket.on('waitingPlayer', ({ user }) => {
-        console.log(`Socket : ${socket.id} is Waiting Player`);
         waitingRoom.push({ name: user.displayName, id: socket.id });
-        console.log(waitingRoom)
         setInterval(findMatch, 1000);
     })
     socket.on('waitingTeamPlayer', ({ user }) => {
-        console.log(`Socket : ${socket.id} is Waiting Player`);
         waitingTeamRoom.push({ name: user.displayName, id: socket.id });
-        console.log(waitingTeamRoom);
         setInterval(findTeamMatch, 1000);
     })
     socket.on('cancelWaiting', () => {
-        console.log(`Socket : ${socket.id} is Cancel Waiting`);
         const index = waitingRoom.findIndex(player => player.id === socket.id);
         if (index !== -1) {
             waitingRoom.splice(index, 1);
         }
-        console.log(waitingRoom)
     })
     socket.on('cancelTeamWaiting', () => {
-        console.log(`Socket : ${socket.id} is Cancel Waiting`);
         const index = waitingTeamRoom.findIndex(player => player.id === socket.id);
         if (index !== -1) {
             waitingTeamRoom.splice(index, 1);
         }
-        console.log(waitingTeamRoom)
     })
 
     socket.on('joinRoom', async ({ roomCode, user }) => {
@@ -106,9 +99,8 @@ io.on('connection', (socket) => {
                 rooms[roomCode] = {
                     players: [{ email: user.email, id: socket.id }],
                 };
-                // console.log(rooms[roomCode]);
                 await roomsCollection.doc(roomCode).set({
-                    players: [{ name: user.displayName, email: user.email, role: role }],
+                    players: [{ name: user.displayName, email: user.email, uid: user.uid, role: role }],
                     turns: role === 'x' ? 0 : 1,
                     squares: Array(9).fill(""),
                     pieceSizes: Array(9).fill(-1),
@@ -140,14 +132,13 @@ io.on('connection', (socket) => {
                         const updatedRoomDoc = (await roomsCollection.doc(roomCode).get()).data().message;
                         io.to(roomCode).emit('chatMessage', updatedRoomDoc);
 
-                        rooms[roomCode].players.push({ email: user.email, id: socket.id });
                     }
                     return;
                 }
 
                 rooms[roomCode].players.push({ email: user.email, id: socket.id });
 
-                players.push({ name: user.displayName, email: user.email, role: players[0].role === "x" ? "o" : "x" });
+                players.push({ name: user.displayName, uid: user.uid, email: user.email, role: players[0].role === "x" ? "o" : "x" });
 
                 await roomsCollection.doc(roomCode).update({ players: players });
 
@@ -162,6 +153,8 @@ io.on('connection', (socket) => {
                 io.to(roomCode).emit('gameStart', {
                     currentPlayer: currentPlayer, anotherPlayer: anotherPlayer
                 });
+                (usersCollection.doc(currentPlayer.uid)).update({ isPlaying: true });
+                (usersCollection.doc(anotherPlayer.uid)).update({ isPlaying: true });
             }
         } catch (error) {
             console.error('Error joining room:', error);
@@ -183,8 +176,8 @@ io.on('connection', (socket) => {
                     players: [{ email: user.email, id: socket.id }],
                 };
                 await roomsCollection.doc(roomCode).set({
-                    players: [{ name: user.displayName, email: user.email, role: 'x' }],
-                    teamX: [{ name: user.displayName, email: user.email, teamRole: teamRole }],
+                    players: [{ name: user.displayName, uid: user.uid, email: user.email, role: 'x' }],
+                    teamX: [{ name: user.displayName, uid: user.uid, email: user.email, teamRole: teamRole }],
                     turns: 'x',
                     squares: Array(9).fill(""),
                     pieceSizes: Array(9).fill(-1),
@@ -241,7 +234,7 @@ io.on('connection', (socket) => {
                                 driverXSee: driverXSee, naviXSee: naviXSee, driverOSee: driverOSee, naviOSee: naviOSee,
                             });
 
-                            rooms[roomCode].players.push({ email: user.email, id: socket.id });
+                            // rooms[roomCode].players.push({ email: user.email, id: socket.id });
                             const updatedRoomDoc = (await roomsCollection.doc(roomCode).get()).data().message;
                             io.to(roomCode).emit('chatMessage', updatedRoomDoc);
                             const updatedTeamDoc = currentRoomData.players[index].role === 'x' ? (await roomsCollection.doc(roomCode).get()).data().messageX
@@ -263,7 +256,7 @@ io.on('connection', (socket) => {
                     }
                     await roomsCollection.doc(roomCode).update({
                         teamO: [{
-                            name: user.displayName,
+                            name: user.displayName, uid: user.uid,
                             email: user.email, teamRole: teamRole
                         }]
                     });
@@ -272,7 +265,8 @@ io.on('connection', (socket) => {
 
                 } else if (players.length === 2) {
                     playersX.push({
-                        name: user.displayName, email: user.email, teamRole: playersX[0].teamRole === "navigator" ?
+                        name: user.displayName, email: user.email, uid: user.uid,
+                        teamRole: playersX[0].teamRole === "navigator" ?
                             "driver" : "navigator"
                     });
                     await roomsCollection.doc(roomCode).update({ teamX: playersX });
@@ -280,7 +274,8 @@ io.on('connection', (socket) => {
                     await roomsCollection.doc(roomCode).update({ players: players });
                 } else if (players.length === 3) {
                     playersO.push({
-                        name: user.displayName, email: user.email, teamRole: playersO[0].teamRole === "navigator" ?
+                        name: user.displayName, email: user.email, uid: user.uid,
+                        teamRole: playersO[0].teamRole === "navigator" ?
                             "driver" : "navigator"
                     });
                     await roomsCollection.doc(roomCode).update({ teamO: playersO });
@@ -300,6 +295,10 @@ io.on('connection', (socket) => {
                 io.to(roomCode).emit('gameStartTeam', {
                     driverX: driverX, driverO: driverO, naviX: naviX, naviO: naviO,
                 });
+                (usersCollection.doc(driverX.uid)).update({ isPlaying: true });
+                (usersCollection.doc(driverO.uid)).update({ isPlaying: true });
+                (usersCollection.doc(naviX.uid)).update({ isPlaying: true });
+                (usersCollection.doc(naviO.uid)).update({ isPlaying: true });
             }
         } catch (error) {
             console.error('Error joining room:', error);
@@ -326,12 +325,10 @@ io.on('connection', (socket) => {
 
     socket.on('sendTeamMessage', async (message) => {
 
-        console.log(message)
         const currentRoomDataMessage = message.role === 'x' ? (await roomsCollection.doc(message.roomCode).get()).data().messageX
             : (await roomsCollection.doc(message.roomCode).get()).data().messageO;
         const storeMessage = { message: message.message, sender: message.displayName };
         await currentRoomDataMessage.push(storeMessage);
-        console.log(currentRoomDataMessage);
 
         message.role === 'x' ? await roomsCollection.doc(message.roomCode).update({ messageX: currentRoomDataMessage }) :
             await roomsCollection.doc(message.roomCode).update({ messageO: currentRoomDataMessage });
@@ -452,19 +449,17 @@ io.on('connection', (socket) => {
 
             // Create a new room code (you may want to implement a function to generate unique room codes)
             const roomCode = await generateRoomCode();
-
-            rooms[roomCode] = {
-                players: [
-                    { name: player1.name, id: player1.id },
-                    { name: player2.name, id: player2.id }
-                ]
-            };
             await io.to(player1.id).emit('matchFound', { roomCode });
             setTimeout(() => {
                 io.to(player2.id).emit('matchFound', { roomCode });
             }, 700)
 
-            console.log(`Match found! Players: ${player1.name} and ${player2.name} in room ${roomCode}`);
+            // rooms[roomCode] = {
+            //     players: [
+            //         { name: player1.name, id: player1.id },
+            //         { name: player2.name, id: player2.id }
+            //     ]
+            // };
         }
     };
     const findTeamMatch = async () => {
@@ -476,14 +471,14 @@ io.on('connection', (socket) => {
 
             const roomCode = await generateRoomCode();
 
-            rooms[roomCode] = {
-                players: [
-                    { name: player1.name, id: player1.id },
-                    { name: player2.name, id: player2.id },
-                    { name: player3.name, id: player3.id },
-                    { name: player4.name, id: player4.id },
-                ]
-            };
+            // rooms[roomCode] = {
+            //     players: [
+            //         { name: player1.name, id: player1.id },
+            //         { name: player2.name, id: player2.id },
+            //         { name: player3.name, id: player3.id },
+            //         { name: player4.name, id: player4.id },
+            //     ]
+            // };
             await io.to(player1.id).emit('matchTeamFound', { roomCode });
             setTimeout(() => {
                 io.to(player2.id).emit('matchTeamFound', { roomCode });
@@ -508,7 +503,6 @@ io.on('connection', (socket) => {
         roomsCollection.onSnapshot((querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 if (roomCode === doc.id) {
-                    console.log(doc.id);
                     roomCode = generateRoomCode();
                 }
             })
@@ -517,6 +511,18 @@ io.on('connection', (socket) => {
         return roomCode;
     }
 
+    socket.on('updateNotPlaying', ({ user }) => {
+        (usersCollection.doc(user.uid)).update({ isPlaying: null });
+    })
+    socket.on('updatePlaying', ({ user, roomCode }) => {
+        (usersCollection.doc(user.uid)).update({ isPlaying: roomCode });
+    })
+
+    socket.on('updateWin', async ({ user }) => {
+        const uidRef = usersCollection.doc(user.uid)
+
+        await uidRef.update({ wins: admin.firestore.FieldValue.increment(1) });
+    })
     socket.on('disconnect', async () => {
         console.log(`Socket disconnected: ${socket.id}`);
         for (const roomCode in rooms) {
@@ -528,7 +534,6 @@ io.on('connection', (socket) => {
             }
         }
         waitingRoom = waitingRoom.filter((player) => player.id !== socket.id);
-        console.log(waitingRoom);
     });
 });
 

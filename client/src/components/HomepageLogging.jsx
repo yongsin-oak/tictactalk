@@ -282,32 +282,33 @@ function HomepageLogging() {
         setSelectedMode(null);
     }
     return (
-        <div className="text-center">
-            <motion.h1 className="text-7xl font-thin" initial={{ scale: 0 }} animate={{ scale: 1 }}>Tic Tac Talk</motion.h1>
-            <motion.div onClick={openModal} style={{ cursor: 'pointer' }} initial={{ scale: 0 }} animate={{ scale: 1 }}>
+        <div className="text-center w-screen flex flex-col justify-center">
+            <motion.h1 className="text-5xl sm:text-7xl font-thin" initial={{ scale: 0 }} animate={{ scale: 1 }}>Tic Tac Talk</motion.h1>
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
                 {user.photoURL ? (
-                    <img src={imageUrl} alt="" className='w-10 h-10 rounded-full mx-auto my-5' />
+                    <img src={imageUrl} alt="" className='w-10 h-10 rounded-full mx-auto my-5' style={{ cursor: 'pointer' }} onClick={openModal}/>
                 ) : (
-                    <AccountCircleIcon sx={{ fontSize: 40 }} className='mx-auto my-5'></AccountCircleIcon>
+                    <AccountCircleIcon sx={{ fontSize: 40 }} className='mx-auto my-5' style={{ cursor: 'pointer' }} onClick={openModal}></AccountCircleIcon>
                 )}
             </motion.div>
-            <div>
+            <div className='flex flex-col justify-center w-full text-center'>
                 {error && <Collapse in={open}>
                     <Alert onClose={() => { setOpen(false); }} severity={iserror ? "error" : "success"} variant="filled" className='my-3'>{error}</Alert>
                 </Collapse>}
-                <motion.form onSubmit={handleSubmit} initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <div className='flex w-full justify-center items-center'>
+                <motion.form onSubmit={handleSubmit} initial={{ scale: 0 }} animate={{ scale: 1 }} className='w-full'>
+                    <div className='flex justify-center items-center'>
                         <p>
                             Welcome,
                         </p>
                         <input
                             type="text"
                             name="displayName"
-                            className='mx-1 w-1/4 bg-transparent px-1 focus:outline-none'
+                            className='mx-1 w-32 bg-transparent px-1 focus:outline-none'
                             placeholder='Name?'
                             onChange={handleChange}
                             value={username.displayName}
                             autoComplete="off"
+                            maxLength={8}
                         />
                         <motion.button whileHover={{ scale: 1.2 }}
                             whileTap={{ scale: 0.9 }}>
@@ -320,7 +321,7 @@ function HomepageLogging() {
                         <p>{selectedMode === 'single' ? 'Single Mode' : 'Team Mode'}</p>
                     </motion.div>
                 )}
-                <Box mt={2} className="gap-2 grid w-6/12 m-auto relative">
+                <Box mt={2} className="gap-2 grid w-56 m-auto relative">
                     {!selectedMode &&
                         <>
                             <motion.button className="h-14 w-full bg-fuchsia-600 hover:bg-fuchsia-400

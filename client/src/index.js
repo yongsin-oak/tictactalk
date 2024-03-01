@@ -8,6 +8,7 @@ import App from './App.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import Tictactoe from './components/tictactoe.jsx';
 import TictactoeTeam from './components/tictactoeTeam.jsx';
+import Navigationbar from './components/NavigationBar.jsx';
 
 
 const router = createBrowserRouter([

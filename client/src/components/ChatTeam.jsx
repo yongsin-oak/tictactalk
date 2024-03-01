@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { LiaPaperPlane } from 'react-icons/lia';
 
 const ChatTeam = ({ socket, roomCode, user, role }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [anotherPlayer, setAnotherPlayer] = useState('');
+    const chatContainerRef = useRef(null);
+
 
     useEffect(() => {
         // Listen for incoming messages from the server
@@ -18,6 +22,14 @@ const ChatTeam = ({ socket, roomCode, user, role }) => {
         //     socket.off('chatTeamMessage');
         // };
     }, [socket]);
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+    const scrollToBottom = () => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    };
 
     const sendMessage = (e) => {
         e.preventDefault();
@@ -44,23 +56,38 @@ const ChatTeam = ({ socket, roomCode, user, role }) => {
         setIsTyping(isTyping);
     });
     return (
-        <div className='text-start'>
-            <div>
+        <motion.div className='text-start w-full relative p-5 h-full bg-white rounded-lg m-auto'
+            initial={{ scale: 0 }} animate={{ scale: 1 }}>
+            <div ref={chatContainerRef} className='relative overflow-y-scroll h-80 overflow-x-hidden
+                border border-gray-400 p-2 rounded-md flex flex-col'>
                 {messages.map((message, index) => (
-                    <p key={index}>{message.sender} : {message.message}</p>
+                    <motion.div key={index} className={` mb-3 p-2 rounded-xl w-1/2 relative
+                    ${message.email === user.email ? 'left-1/2 bg-green-200' : 'left-0 bg-red-200'}`}
+                        initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ wordWrap: 'break-word' }}>
+                        <p className={`font-extrabold ${message.email === user.email ? 'text-end' : 'text-start'}`}>
+                            {message.sender}
+                        </p>
+                        <p className={`${message.email === user.email ? 'text-end' : 'text-start'}`}>
+                            {message.message}
+                        </p>
+                    </motion.div>
+
                 ))}
             </div>
             {isTyping && <p>{anotherPlayer} is typing...</p>}
-            <form>
-                <input
-                    type="text"
-                    value={newMessage}
-                    onChange={handleChange}
-                    className='p-1'
-                />
-                <button onClick={sendMessage} type='submit' className='mx-2'>Send</button>
+            <form className='absolute bottom-5 left-2 right-0 flex mt-5 mx-auto' style={{width: '90%'}}>
+                <div className='w-full border-2 rounded-full px-2 border-green-500 relative'>
+                    <input
+                        type="text"
+                        value={newMessage}
+                        onChange={handleChange}
+                        className='bg-transparent focus:outline-none w-4/5 h-10'
+                        maxLength={30}
+                    />
+                    <button onClick={sendMessage} type='submit' className='mx-2 absolute right-0 top-0 bottom-0 my-auto'><LiaPaperPlane /></button>
+                </div>
             </form>
-        </div>
+        </motion.div>
     );
 };
 

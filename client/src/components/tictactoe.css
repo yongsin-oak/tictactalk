@@ -132,3 +132,6 @@
 .square.enableSizeBtn{
     border: 2px solid black;
 }
+body{
+    overflow-x: hidden;
+}

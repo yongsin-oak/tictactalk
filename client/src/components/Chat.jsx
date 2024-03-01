@@ -12,7 +12,6 @@ const Chat = ({ socket, roomCode, user }) => {
 
     useEffect(() => {
         socket.on('chatMessage', (message) => {
-            console.log(message);
             setMessages(message);
         });
 
@@ -56,9 +55,9 @@ const Chat = ({ socket, roomCode, user }) => {
         }
     });
     return (
-        <motion.div className='text-start w-5/6 relative p-5 h-2/3 bg-white rounded-lg m-auto'
+        <motion.div className='text-start w-full relative p-5 h-full bg-white rounded-lg m-auto'
             initial={{ scale: 0 }} animate={{ scale: 1 }}>
-            <div ref={chatContainerRef} className='relative top-0 overflow-y-scroll max-h-96 overflow-x-hidden
+            <div ref={chatContainerRef} className='relative overflow-y-scroll h-80 overflow-x-hidden
                 border border-gray-400 p-2 rounded-md flex flex-col'>
                 {messages.map((message, index) => (
                     <motion.div key={index} className={` mb-3 p-2 rounded-xl w-1/2 relative
@@ -75,7 +74,7 @@ const Chat = ({ socket, roomCode, user }) => {
                 ))}
             </div>
             {isTyping && <p>{anotherPlayer} is typing...</p>}
-            <form className='relative bottom-0 flex mt-5'>
+            <form className='absolute bottom-0 left-2 right-0 flex mt-5 mx-auto py-4' style={{width: '90%'}}>
                 <div className='w-full border-2 rounded-full px-2 border-green-500 relative'>
                     <input
                         type="text"
