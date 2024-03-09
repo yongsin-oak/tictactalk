@@ -34,7 +34,7 @@ const ChatTeam = ({ socket, roomCode, user, role }) => {
     const sendMessage = (e) => {
         e.preventDefault();
         if (newMessage.trim() !== '') {
-            socket.emit('sendTeamMessage', { message: newMessage, roomCode: roomCode, role: role, displayName: user.displayName });
+            socket.emit('sendTeamMessage', { message: newMessage, roomCode: roomCode, role: role, displayName: user.displayName, email: user.email });
             setNewMessage('');
             socket.emit('typingTeam', { displayName: user.displayName, isTyping: false });
         }
@@ -56,8 +56,7 @@ const ChatTeam = ({ socket, roomCode, user, role }) => {
         setIsTyping(isTyping);
     });
     return (
-        <motion.div className='text-start w-full relative p-5 h-full bg-white rounded-lg m-auto'
-            initial={{ scale: 0 }} animate={{ scale: 1 }}>
+        <div className='text-start w-full relative p-5 h-full bg-white rounded-lg m-auto flex flex-col'>
             <div ref={chatContainerRef} className='relative overflow-y-scroll h-80 overflow-x-hidden
                 border border-gray-400 p-2 rounded-md flex flex-col'>
                 {messages.map((message, index) => (
@@ -75,8 +74,8 @@ const ChatTeam = ({ socket, roomCode, user, role }) => {
                 ))}
             </div>
             {isTyping && <p>{anotherPlayer} is typing...</p>}
-            <form className='absolute bottom-5 left-2 right-0 flex mt-5 mx-auto' style={{width: '90%'}}>
-                <div className='w-full border-2 rounded-full px-2 border-green-500 relative'>
+            <form className='flex mt-1 py-4 w-full'>
+                <div className='w-full border rounded-full px-2 border-gray-400 relative'>
                     <input
                         type="text"
                         value={newMessage}
@@ -87,7 +86,7 @@ const ChatTeam = ({ socket, roomCode, user, role }) => {
                     <button onClick={sendMessage} type='submit' className='mx-2 absolute right-0 top-0 bottom-0 my-auto'><LiaPaperPlane /></button>
                 </div>
             </form>
-        </motion.div>
+        </div>
     );
 };
 

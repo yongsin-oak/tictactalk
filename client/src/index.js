@@ -8,7 +8,7 @@ import App from './App.jsx';
 import ProtectedRoute from './auth/protectedRoute.jsx';
 import Tictactoe from './components/tictactoe.jsx';
 import TictactoeTeam from './components/tictactoeTeam.jsx';
-import Navigationbar from './components/NavigationBar.jsx';
+import Scoreboard from './components/Scoreboard.jsx';
 
 
 const router = createBrowserRouter([
@@ -23,12 +23,14 @@ const router = createBrowserRouter([
   {
     path: "/roomgameTeam",
     element: <ProtectedRoute><TictactoeTeam /></ProtectedRoute>
+  },
+  {
+    path: "/scoreboard",
+    element: <ProtectedRoute><Scoreboard /></ProtectedRoute>
   }
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <UserAuthContextProvider>
       <RouterProvider router={router} />
     </UserAuthContextProvider>
-  </React.StrictMode>,
 )

@@ -49,10 +49,13 @@ export function UserAuthContextProvider({ children }) {
       const userDocRef = doc(db, 'users', uid);
       // Add additional user data to Firestore
       await setDoc(userDocRef, {
-        uid: uid,
         email: email,
-        // userName: username,
-        // Add more user information as needed
+        wins: 0,
+        losses:0,
+        draws:0,
+        TWins: 0,
+        TLosses: 0,
+        TDraws: 0,
       });
       setUser(userCredential.user);
 

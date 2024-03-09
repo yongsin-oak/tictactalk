@@ -13,6 +13,8 @@ import { useUserAuth } from "../context/UserAuthContext";
 import { auth } from "../firebase";
 import Chat from "./Chat";
 import ChatTeam from "./ChatTeam";
+import './tictactoeTeam.css';
+import CopyToClipboard from "react-copy-to-clipboard";
 
 function TictactoeTeam() {
     const [squares, setSquares] = useState(Array(9).fill(""));
@@ -41,6 +43,7 @@ function TictactoeTeam() {
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
     const [chatAll, setChatAll] = useState(true);
+    const [time, setTime] = useState(20);
 
     useEffect(() => {
         if (socket) {
@@ -139,6 +142,8 @@ function TictactoeTeam() {
     }, [socket, teamRole]);
 
 
+
+
     // const checkEndTheGame = () => {
     //     for (let square of squares) {
     //         if (!square) return false;
@@ -180,10 +185,20 @@ function TictactoeTeam() {
         return false;
     };
 
+
     const updateSquares = (ind) => {
-        if (teamRole === 'navigator') return;
-        if (!canReplace(ind) || winner) return;
         if (isGameStarted && !isMyTurn) return;
+        if (teamRole === 'navigator') return;
+        if (notSeeSquares[ind] === role) return;
+        if (!canReplace(ind)) {
+            const newBoard = notSeeSquares;
+            const pieceSizes = sizeSquares;
+            socket.emit('playerMoveTeam', {
+                roomCode: roomCode, newBoard: newBoard, pieceSizes: pieceSizes,
+                xAvailableSizes: xAvailableSizes, oAvailableSizes: oAvailableSizes, teamRole: teamRole, role: role
+            });
+            return;
+        };
         const s = notSeeSquares;
         let sizeAvailables = turn === "x" ? xAvailableSizes : oAvailableSizes
         let setSizeAvailables = turn === "x" ? setXAvailableSize : setOAvailableSize
@@ -247,23 +262,37 @@ function TictactoeTeam() {
 
     const setAll = () => {
         setChatAll(true);
-        socket.emit('loadChat', {roomCode: roomCode, role: role})
+        socket.emit('loadChat', { roomCode: roomCode, role: role })
     }
     const setTeam = () => {
         setChatAll(false);
-        socket.emit('loadChat', {roomCode: roomCode, role: role})
+        socket.emit('loadChat', { roomCode: roomCode, role: role })
     }
+    useEffect(() => {
+        if (!winner || !socket) return;
+        winner === role ? socket.emit('updateTeamWin', { user }) :
+            winner === 'draw' ? socket.emit('updateTeamDraw', { user }) : socket.emit('updateTeamLose', { user });
+        socket.emit('updateNotPlaying', { user });
+    }, [winner])
 
+    const greeting = () => {
+        const greetings = [`Hello, ${user.displayName}`, `How are you to day ${user.displayName}?`,
+        `Will you win ${user.displayName}?`, `Hope you win ${user.displayName}.`, `Hope you enjoy ${user.displayName}.`,
+        `We are looking players for you, ${user.displayName}.`]
+        return greetings[Math.floor(Math.random() * greetings.length)];
+    }
     const renderGameContent = () => {
         if (!isGameStarted && winner === null) {
             return (
                 <div className='flex flex-col justify-center items-center gap-6'>
                     <h1 className='text-4xl font-bold text-white text-center'>TicTacTalk</h1>
-
                     <div className='flex flex-col justify-center items-center gap-4 mb-4'>
-                        <span className='text-xl font-semibold text-gray-400'>Room Code : {roomCode}</span>
+                        <span className='text-xl font-semibold'>{greeting()}</span>
+                        <span className='text-xl font-semibold'>Room Code : {roomCode}</span>
+                        <CopyToClipboard text={roomCode}>
+                            <button className=" bg-green-400 hover:bg-green-300 p-2 rounded-xl">Copy Code</button>
+                        </CopyToClipboard>
                     </div>
-
                     <Spinner text='Waiting Player...' />
                 </div>
             );
@@ -274,8 +303,8 @@ function TictactoeTeam() {
                 <div className='grid lg:grid-cols-2 grid-cols-1 grid-rows-2 lg:grid-rows-1 justify-center gap-6 lg:w-3/4 w-full'>
                     <div className='flex flex-col justify-center items-center gap-6'>
                         <div className='flex flex-col justify-center items-center gap-4 mb-4'>
-                            <h3 className='text-2xl font-bold text-gray-300'>You are {role} {teamRole}</h3>
-                            <h3 className='text-2xl font-bold text-gray-300'>{teamName[0]} and {teamName[1]} vs {team2Name[0]} and {team2Name[1]}</h3>
+                            <h3 className='text-2xl font-bold'>You are {role} {teamRole}</h3>
+                            <h3 className='text-2xl font-bold'>{teamName[0]} and {teamName[1]} vs {team2Name[0]} and {team2Name[1]}</h3>
                         </div>
                         <div className="tictactoe">
                             {/* <Button resetGame={resetGame} /> */}
@@ -449,7 +478,7 @@ function TictactoeTeam() {
                         </div>
                     </div>
                     <div className="relative w-11/12 md:w-8/12 lg:w-9/12 h-3/4 flex flex-col mx-auto">
-                        <div className={`LoginToggle ${chatAll === true ? "left" : "right"} top-0`}>
+                        <div className={`chatToggle ${chatAll === true ? "left" : "right"} top-0`}>
                             <button className='h-12 w-full z-10 text-center' onClick={setAll}>
                                 <span>All</span>
                             </button>

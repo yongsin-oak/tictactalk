@@ -281,12 +281,15 @@ function HomepageLogging() {
     const handleToSelectMode = () => {
         setSelectedMode(null);
     }
+    const handleScoreboard = () => {
+        navigate('/scoreboard');
+    }
     return (
         <div className="text-center w-screen flex flex-col justify-center">
             <motion.h1 className="text-5xl sm:text-7xl font-thin" initial={{ scale: 0 }} animate={{ scale: 1 }}>Tic Tac Talk</motion.h1>
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
                 {user.photoURL ? (
-                    <img src={imageUrl} alt="" className='w-10 h-10 rounded-full mx-auto my-5' style={{ cursor: 'pointer' }} onClick={openModal}/>
+                    <img src={imageUrl} alt="" className='w-10 h-10 rounded-full mx-auto my-5' style={{ cursor: 'pointer' }} onClick={openModal} />
                 ) : (
                     <AccountCircleIcon sx={{ fontSize: 40 }} className='mx-auto my-5' style={{ cursor: 'pointer' }} onClick={openModal}></AccountCircleIcon>
                 )}
@@ -339,6 +342,14 @@ function HomepageLogging() {
                                 onClick={handleTeamMode} initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}>
                                 Team Mode
+                            </motion.button>
+                            <motion.button className="h-14 w-full bg-indigo-500 hover:bg-indigo-400
+                text-white font-thin py-2 px-4 border-b-4 
+                border-indigo-600 hover:border-indigo-500 rounded
+                 text-2xl" whileTap={{ transform: "translateY(5px)" }}
+                                onClick={handleScoreboard} initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}>
+                                Scoreboard
                             </motion.button>
                             <motion.button
                                 className="bg-transparent h-14 w-full 

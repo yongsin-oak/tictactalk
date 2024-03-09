@@ -5,7 +5,7 @@ import ChooseO from "./ChooseO";
 import ChooseX from "./ChooseX";
 import DrawXO from "./DrawXO";
 import queryString from "query-string";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Spinner from "./Spinner";
 import { useUserAuth } from "../context/UserAuthContext";
@@ -15,6 +15,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from "./Button";
 
 function Tictactoe() {
+    const navigate = useNavigate();
     const [squares, setSquares] = useState(Array(9).fill(""));
     const [sizeSquares, setSizeSquares] = useState(Array(9).fill(-1));
     const [turn, setTurn] = useState("x");
@@ -216,13 +217,22 @@ function Tictactoe() {
                 <div className='flex flex-col justify-center items-center gap-6'>
                     <h1 className='text-4xl font-bold text-white text-center'>TicTacTalk</h1>
                     <div className='flex flex-col justify-center items-center gap-4 mb-4'>
-                        <span className='text-xl font-semibold text-gray-400'>{greeting()}</span>
-                        <span className='text-xl font-semibold text-gray-400'>Room Code : {roomCode}</span>
+                        <span className='text-xl font-semibold'>{greeting()}</span>
+                        <span className='text-xl font-semibold'>Room Code : {roomCode}</span>
                         <CopyToClipboard text={roomCode}>
-                            <button>Copy to clipboard</button>
+                            <button className=" bg-green-400 hover:bg-green-300 p-2 rounded-xl">Copy Code</button>
                         </CopyToClipboard>
                     </div>
                     <Spinner text='Waiting Player...' />
+                    <button
+                        className="h-14 w-2/5 bg-red-600 hover:bg-red-400 
+                                text-white font-thin 
+                                border-b-4 border-red-700 hover:border-red-500
+                                rounded text-2xl mt-1 mx-auto"
+                        onClick={() => navigate('/')}
+                    >
+                        Back
+                    </button>
                 </div>
             );
         }
@@ -404,8 +414,8 @@ function Tictactoe() {
                         </div>
                     </div>
                     <div className="mx-auto h-2/3 lg:w-9/12 w-11/12 md:w-8/12 relative">
-                        <h3 className='text-2xl font-bold text-gray-300'>You are {role}</h3>
-                        <h3 className='text-2xl font-bold text-gray-300'>{user.displayName} vs {player2Name}</h3>
+                        <h3 className='text-2xl font-bold'>You are {role}</h3>
+                        <h3 className='text-2xl font-bold'>{user.displayName} vs {player2Name}</h3>
                         <Chat socket={socket} roomCode={roomCode} user={user}></Chat>
                     </div>
 

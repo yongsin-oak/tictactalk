@@ -239,7 +239,7 @@ io.on('connection', (socket) => {
                             io.to(roomCode).emit('chatMessage', updatedRoomDoc);
                             const updatedTeamDoc = currentRoomData.players[index].role === 'x' ? (await roomsCollection.doc(roomCode).get()).data().messageX
                                 : (await roomsCollection.doc(roomCode).get()).data().messageO;
-                            io.to(roomCode).emit('chatTeamMessage', { updatedRoomDoc: updatedTeamDoc, role: currentRoomData.players[index].role });
+                            io.to(roomCode).emit('chatTeamMessage', { updatedRoomDoc: updatedTeamDoc, role: currentRoomData.players[index].role, email: currentRoomData.players[index].email });
                             return;
                         }
                     }
@@ -327,7 +327,7 @@ io.on('connection', (socket) => {
 
         const currentRoomDataMessage = message.role === 'x' ? (await roomsCollection.doc(message.roomCode).get()).data().messageX
             : (await roomsCollection.doc(message.roomCode).get()).data().messageO;
-        const storeMessage = { message: message.message, sender: message.displayName };
+        const storeMessage = { message: message.message, sender: message.displayName, email: message.email };
         await currentRoomDataMessage.push(storeMessage);
 
         message.role === 'x' ? await roomsCollection.doc(message.roomCode).update({ messageX: currentRoomDataMessage }) :
@@ -337,7 +337,7 @@ io.on('connection', (socket) => {
         const updatedRoomDoc = message.role === 'x' ? (await roomsCollection.doc(message.roomCode).get()).data().messageX
             : (await roomsCollection.doc(message.roomCode).get()).data().messageO;
 
-        io.to(message.roomCode).emit('chatTeamMessage', { updatedRoomDoc: updatedRoomDoc, role: message.role });
+        io.to(message.roomCode).emit('chatTeamMessage', { updatedRoomDoc: updatedRoomDoc, role: message.role, email: message.email });
     });
 
     socket.on('loadChat', async (message) => {
@@ -354,7 +354,7 @@ io.on('connection', (socket) => {
     socket.on('playerMove', async ({ roomCode, newBoard, pieceSizes, winner, xAvailableSizes, oAvailableSizes }) => {
         const roomDoc = (await roomsCollection.doc(roomCode).get()).data();
         if (roomDoc.exists) return;
-
+        
         await roomsCollection.doc(roomCode).update({ squares: newBoard })
         await roomsCollection.doc(roomCode).update({ turns: roomDoc.turns === 0 ? 1 : 0 });
         await roomsCollection.doc(roomCode).update({ pieceSizes: pieceSizes });
@@ -522,6 +522,35 @@ io.on('connection', (socket) => {
         const uidRef = usersCollection.doc(user.uid)
 
         await uidRef.update({ wins: admin.firestore.FieldValue.increment(1) });
+        await uidRef.update({ scores: admin.firestore.FieldValue.increment(2) });
+    })
+    socket.on('updateDraw', async ({ user }) => {
+        const uidRef = usersCollection.doc(user.uid)
+
+        await uidRef.update({ draws: admin.firestore.FieldValue.increment(1) });
+        await uidRef.update({ scores: admin.firestore.FieldValue.increment(1) });
+    })
+    socket.on('updateLose', async ({ user }) => {
+        const uidRef = usersCollection.doc(user.uid)
+
+        await uidRef.update({ losses: admin.firestore.FieldValue.increment(1) });
+    })
+    socket.on('updateTeamWin', async ({ user }) => {
+        const uidRef = usersCollection.doc(user.uid)
+
+        await uidRef.update({ TWins: admin.firestore.FieldValue.increment(1) });
+        await uidRef.update({ TScores: admin.firestore.FieldValue.increment(2) });
+    })
+    socket.on('updateTeamDraw', async ({ user }) => {
+        const uidRef = usersCollection.doc(user.uid)
+
+        await uidRef.update({ TDraws: admin.firestore.FieldValue.increment(1) });
+        await uidRef.update({ TScores: admin.firestore.FieldValue.increment(1) });
+    })
+    socket.on('updateTeamLose', async ({ user }) => {
+        const uidRef = usersCollection.doc(user.uid)
+
+        await uidRef.update({ TLosses: admin.firestore.FieldValue.increment(1) });
     })
     socket.on('disconnect', async () => {
         console.log(`Socket disconnected: ${socket.id}`);
