@@ -361,7 +361,6 @@ io.on('connection', (socket) => {
             winner: updatedRoomDoc.winner, xAvailableSizes: updatedRoomDoc.xAvailableSizes,
             oAvailableSizes: updatedRoomDoc.oAvailableSizes,
         });
-
     });
 
     socket.on('playerMoveTeam', async ({ roomCode, newBoard, pieceSizes, xAvailableSizes, oAvailableSizes, teamRole, role }) => {

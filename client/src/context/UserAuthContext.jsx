@@ -34,14 +34,6 @@ export function UserAuthContextProvider({ children }) {
         setDoc(userDocRef, {
           email: email,
           username: user.displayName,
-          wins: 0,
-          losses: 0,
-          draws: 0,
-          TWins: 0,
-          TLosses: 0,
-          TDraws: 0,
-          scorese:0,
-          TScores:0
         });
         setUser(user.user);
       })
@@ -58,12 +50,6 @@ export function UserAuthContextProvider({ children }) {
       // Add additional user data to Firestore
       await setDoc(userDocRef, {
         email: email,
-        wins: 0,
-        losses: 0,
-        draws: 0,
-        TWins: 0,
-        TLosses: 0,
-        TDraws: 0,
       });
       setUser(userCredential.user);
 
