@@ -210,6 +210,9 @@ function Tictactoe() {
         `We are looking players for you, ${user.displayName}.`]
         return greetings[Math.floor(Math.random() * greetings.length)];
     }
+    const backtoHomepage = () => {
+        navigate("/");
+    }
 
     const renderGameContent = () => {
         if (!isGameStarted && winner === null) {
@@ -364,7 +367,7 @@ function Tictactoe() {
                                             >
                                                 {winner === "x | o"
                                                     ? "No Winner :/"
-                                                    : "Win !! :)"}
+                                                    : "Win !!"}
                                             </motion.h2>
                                             <motion.div
                                                 initial={{ scale: 0 }}
@@ -405,7 +408,10 @@ function Tictactoe() {
                                                     transition: { delay: 1.5, duration: 0.3 },
                                                 }}
                                             >
-                                                <Button resetGame={resetGame} />
+                                                <div className="flex">
+                                                    <button onClick={backtoHomepage}>Back to Homepage</button>
+                                                    <Button resetGame={resetGame} />
+                                                </div>
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>

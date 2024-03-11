@@ -6,7 +6,7 @@ import ChooseO from "./ChooseO";
 import ChooseX from "./ChooseX";
 import DrawXO from "./DrawXO";
 import queryString from "query-string";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Spinner from "./Spinner";
 import { useUserAuth } from "../context/UserAuthContext";
@@ -43,7 +43,7 @@ function TictactoeTeam() {
     const { user } = useUserAuth();
     const uid = auth.currentUser?.uid;
     const [chatAll, setChatAll] = useState(true);
-    const [time, setTime] = useState(20);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (socket) {
@@ -281,6 +281,9 @@ function TictactoeTeam() {
         `We are looking players for you, ${user.displayName}.`]
         return greetings[Math.floor(Math.random() * greetings.length)];
     }
+    const backtoHomepage = () => {
+        navigate("/");
+    }
     const renderGameContent = () => {
         if (!isGameStarted && winner === null) {
             return (
@@ -469,6 +472,7 @@ function TictactoeTeam() {
                                                     transition: { delay: 1.5, duration: 0.3 },
                                                 }}
                                             >
+                                                <button onClick={backtoHomepage}>Back to Homepage</button>
                                                 <Button resetGame={resetGame} />
                                             </motion.div>
                                         </motion.div>
