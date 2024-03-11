@@ -45,9 +45,9 @@ function Scoreboard() {
                             {userData.map((player, index) => index < 10 && (
                                 <tr key={index}>
                                     <td className="border px-2 py-2"style={{ maxWidth: "180px", wordWrap: "break-word" }}>{player.email}</td>
-                                    <td className="border px-2 py-2 text-center">{player.wins}</td>
-                                    <td className="border px-2 py-2 text-center">{player.draws}</td>
-                                    <td className="border px-2 py-2 text-center">{player.losses}</td>
+                                    <td className="border px-2 py-2 text-center">{(player.wins ? player.wins : 0)}</td>
+                                    <td className="border px-2 py-2 text-center">{(player.draws ? player.draws : 0)}</td>
+                                    <td className="border px-2 py-2 text-center">{(player.losses ? player.losses : 0)}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -69,9 +69,9 @@ function Scoreboard() {
                             {userTeamData.map((team, index) => index < 10 && (
                                 <tr key={index}>
                                     <td className="border px-2 py-2">{team.email}</td>
-                                    <td className="border px-2 py-2 text-center">{team.TWins}</td>
-                                    <td className="border px-2 py-2 text-center">{team.TDraws}</td>
-                                    <td className="border px-2 py-2 text-center">{team.TLosses}</td>
+                                    <td className="border px-2 py-2 text-center">{(team.TWins ? team.TWins : 0)}</td>
+                                    <td className="border px-2 py-2 text-center">{(team.TDraws ? team.TDraws : 0)}</td>
+                                    <td className="border px-2 py-2 text-center">{(team.TLosses ? team.TLosses : 0)}</td>
                                 </tr>
                             ))}
                         </tbody>
