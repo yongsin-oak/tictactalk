@@ -7,7 +7,6 @@ const app = express();
 const whitelist = ["http://127.0.0.1:3000", "http://localhost:3000", "https://tictactalk.web.app/"];
 
 const admin = require('firebase-admin');
-
 const serviceAccount = require('./tictactalk-firebase-adminsdk-tlb1y-ca38f272aa.json');
 
 admin.initializeApp({
@@ -28,21 +27,14 @@ const corsOptions = {
 }
 const forceSecure = (req, res, next) => {
     if (req.secure)
-        return next(); // https -- Continue
+        return next();
 
     res.redirect('https://' + req.hostname + req.url)
 }
 app.all('*', forceSecure);
-
 app.use(cors(corsOptions));
+
 const server = http.createServer(app);
-// const io = socketio(server, {
-//     cors: {
-//         origin: "https://tictactalk.web.app/",
-//         methods: ["GET", "POST"],
-//         credentials: true
-//     }
-// });
 const io = socketio(server);
 const PORT = process.env.PORT || 8080
 

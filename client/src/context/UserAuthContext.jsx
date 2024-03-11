@@ -6,7 +6,7 @@ import {
   signOut,
   signInWithPopup,
 } from 'firebase/auth';
-import { auth, db, provider} from '../firebase';
+import { auth, db, provider } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { CircularProgress, Stack } from '@mui/material';
 import { GoogleAuthProvider } from 'firebase/auth';
@@ -34,6 +34,14 @@ export function UserAuthContextProvider({ children }) {
         setDoc(userDocRef, {
           email: email,
           username: user.displayName,
+          wins: 0,
+          losses: 0,
+          draws: 0,
+          TWins: 0,
+          TLosses: 0,
+          TDraws: 0,
+          scorese:0,
+          TScores:0
         });
         setUser(user.user);
       })
@@ -51,8 +59,8 @@ export function UserAuthContextProvider({ children }) {
       await setDoc(userDocRef, {
         email: email,
         wins: 0,
-        losses:0,
-        draws:0,
+        losses: 0,
+        draws: 0,
         TWins: 0,
         TLosses: 0,
         TDraws: 0,

@@ -23,59 +23,62 @@ function Scoreboard() {
     }
 
     return (
-        <div className="container flex gap-5 p-5 mx-auto justify-center">
-            <div className='absolute top-5 left-5'>
+        <div>
+            <div className='top-2 left-2 relative'>
                 <button onClick={() => { navigate('/') }} className=' text-2xl'>
                     <SlActionUndo size={50}></SlActionUndo>
                 </button>
             </div>
-            <div className='flex-grow'>
-                <h1 className="text-2xl font-bold my-4 text-center">Single Match Scoreboard</h1>
-                <table className="table-auto w-full">
-                    <thead>
-                        <tr>
-                            <th className="px-4 py-2">Email</th>
-                            <th className="px-4 py-2">Win</th>
-                            <th className="px-4 py-2">Draw</th>
-                            <th className="px-4 py-2">Lose</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userData.map((player, index) => index < 10 && (
-                            <tr key={index}>
-                                <td className="border px-4 py-2">{player.email}</td>
-                                <td className="border px-4 py-2">{player.wins}</td>
-                                <td className="border px-4 py-2">{player.draws}</td>
-                                <td className="border px-4 py-2">{player.losses}</td>
+            <div className="container flex flex-col gap-5 p-2 mx-auto justify-center lg:flex-row">
+                <div className='flex-grow'>
+                    <h1 className="text-2xl font-bold my-4 text-center">Single Match Scoreboard</h1>
+                    <table className="table-auto w-full">
+                        <thead>
+                            <tr>
+                                <th className="px-2 py-2">Email</th>
+                                <th className="px-2 py-2">Win</th>
+                                <th className="px-2 py-2">Draw</th>
+                                <th className="px-2 py-2">Lose</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {userData.map((player, index) => index < 10 && (
+                                <tr key={index}>
+                                    <td className="border px-2 py-2"style={{ maxWidth: "180px", wordWrap: "break-word" }}>{player.email}</td>
+                                    <td className="border px-2 py-2 text-center">{player.wins}</td>
+                                    <td className="border px-2 py-2 text-center">{player.draws}</td>
+                                    <td className="border px-2 py-2 text-center">{player.losses}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className='flex-grow'>
+                    <h1 className="text-2xl font-bold my-4 text-center">Team Match Scoreboard</h1>
+                    <table className="table-auto w-full">
+                        <thead>
+                            <tr>
+                                <th className="px-2 py-2">Email</th>
+                                <th className="px-2 py-2">Win</th>
+                                <th className="px-2 py-2">Draw</th>
+                                <th className="px-2 py-2">Lose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {userTeamData.map((team, index) => index < 10 && (
+                                <tr key={index}>
+                                    <td className="border px-2 py-2">{team.email}</td>
+                                    <td className="border px-2 py-2 text-center">{team.TWins}</td>
+                                    <td className="border px-2 py-2 text-center">{team.TDraws}</td>
+                                    <td className="border px-2 py-2 text-center">{team.TLosses}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div className='flex-grow'>
-                <h1 className="text-2xl font-bold my-4 text-center">Team Match Scoreboard</h1>
-                <table className="table-auto w-full">
-                    <thead>
-                        <tr>
-                            <th className="px-4 py-2">Email</th>
-                            <th className="px-4 py-2">Win</th>
-                            <th className="px-4 py-2">Draw</th>
-                            <th className="px-4 py-2">Lose</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userTeamData.map((team, index) => index < 10 && (
-                            <tr key={index}>
-                                <td className="border px-4 py-2">{team.email}</td>
-                                <td className="border px-4 py-2">{team.TWins}</td>
-                                <td className="border px-4 py-2">{team.TDraws}</td>
-                                <td className="border px-4 py-2">{team.TLosses}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
 
         </div>
     );

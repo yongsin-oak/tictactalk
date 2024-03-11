@@ -209,8 +209,8 @@ function HomepageLogging() {
         const roomsCollectionRef = collection(db, 'rooms');
         const querySnapshot = await getDocs(roomsCollectionRef)
         querySnapshot.forEach((doc) => {
-            if (roomCode === doc.id) {
-                navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode)}`);
+            if (roomCode.toUpperCase() === doc.id) {
+                navigate(`/roomgame?&roomCode=${encodeURIComponent(roomCode.toUpperCase())}`);
             }
         })
     };
@@ -267,8 +267,8 @@ function HomepageLogging() {
         const roomsCollectionRef = collection(db, 'rooms');
         const querySnapshot = await getDocs(roomsCollectionRef)
         querySnapshot.forEach((doc) => {
-            if (roomCode === doc.id) {
-                navigate(`/roomgameTeam?&roomCode=${encodeURIComponent(roomCode)}`);
+            if (roomCode.toUpperCase() === doc.id) {
+                navigate(`/roomgameTeam?&roomCode=${encodeURIComponent(roomCode.toUpperCase())}`);
             }
         })
     }
@@ -296,7 +296,7 @@ function HomepageLogging() {
             </motion.div>
             <div className='flex flex-col justify-center w-full text-center'>
                 {error && <Collapse in={open}>
-                    <Alert onClose={() => { setOpen(false); }} severity={iserror ? "error" : "success"} variant="filled" className='my-3'>{error}</Alert>
+                    <Alert onClose={() => { setOpen(false); }} severity={iserror ? "error" : "success"} variant="filled" className='my-3 w-80 mx-auto'>{error}</Alert>
                 </Collapse>}
                 <motion.form onSubmit={handleSubmit} initial={{ scale: 0 }} animate={{ scale: 1 }} className='w-full'>
                     <div className='flex justify-center items-center'>
