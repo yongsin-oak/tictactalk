@@ -17,7 +17,7 @@ Second terminal change directory to server
 ### `npm install`
 Second terminal run npm install in server directory
 
-### `!!!!change server url!!!!!`
+### `!!change server url!!`
 in HomepageLoggin.jsx, tictactoe.jsx, tictactoeTeam.jsx
 change const newSocket from https://tictactalk.as.r.appspot.com/ to http://localhost:8080 (or some port)
 
