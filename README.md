@@ -17,6 +17,10 @@ Second terminal change directory to server
 ### `npm install`
 Second terminal run npm install in server directory
 
+### `!!!!change server url!!!!!`
+in HomepageLoggin.jsx, tictactoe.jsx, tictactoeTeam.jsx
+change const newSocket from https://tictactalk.as.r.appspot.com/ to http://localhost:8080 (or some port)
+
 ### `npm start`
 run npm start on both teriminal directory (server directory and client directory)
 
@@ -25,7 +29,3 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
-
-### `!!!!change server url!!!!!`
-in HomepageLoggin.jsx, tictactoe.jsx, tictactoeTeam.jsx
-change const newSocket from https://tictactalk.as.r.appspot.com/ to http://localhost:8080 (or some port)
