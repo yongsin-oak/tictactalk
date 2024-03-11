@@ -2,24 +2,24 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
-
-In the project directory, you can run:
+### open 2 terminal commands
+Open 2 terminal commands to 1.for client 2.for server
 
 ### `cd client`
-change directory to client first
+First terminal change directory to client first
 
 ### `npm install`
-run npm install in client directory first
+Firest terminal run npm install in client directory first
 
 ### `cd server`
-then open another terminal and change directory to server
+Second terminal change directory to server
 
 ### `npm install`
-run npm install in server directory
+Second terminal run npm install in server directory
 
 ### `npm start`
-run npm start on both directory (server directory and client directory)
+run npm start on both teriminal directory (server directory and client directory)
+
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
