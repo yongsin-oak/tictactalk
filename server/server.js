@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 
 const whitelist = ["http://127.0.0.1:3000", "http://localhost:3000", "https://tictactalk.web.app/"];
@@ -33,6 +34,7 @@ const forceSecure = (req, res, next) => {
 }
 app.all('*', forceSecure);
 app.use(cors(corsOptions));
+app.use(express.static(path.join(__dirname, './public')));
 
 const server = http.createServer(app);
 const io = socketio(server);
